@@ -205,3 +205,14 @@ SUMMERNOTE_CONFIG = {
     'attachment_upload_to': 'summernote',
     'attachment_allowed_types': ['image/jpeg', 'image/svg', 'image/png', 'image/gif'],
 }
+
+# Add SVG to Django's allowed upload formats
+FILE_UPLOAD_HANDLERS = [
+    'django.core.files.uploadhandler.MemoryFileUploadHandler',
+    'django.core.files.uploadhandler.TemporaryFileUploadHandler',
+]
+
+# Add SVG MIME type
+MIME_TYPES = {
+    'svg': 'image/svg+xml',
+}
