@@ -1,8 +1,6 @@
-# apps/blog/admin.py
-
 from django.contrib import admin
 from django.utils.html import format_html
-from .models import Category, Tag, Post, Comment
+from djangify_backend.apps.blog.models import Category, Tag, Post, Comment
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):

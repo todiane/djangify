@@ -1,4 +1,3 @@
-# templates/admin/base_site.html
 {% extends "admin/base.html" %}
 {% load static %}
 
@@ -12,11 +11,12 @@
 </h1>
 {% endblock %}
 
-{% block extrastyle %}
+{% block extrahead %}
+{{ block.super }}
 <style>
     :root {
-        --primary-color: #0C8C9D;  /* Change this to match your brand color */
-        --secondary-color: #403F3F;
+        --primary-color: #2563eb;  /* Change this to match your brand color */
+        --secondary-color: #1d4ed8;
     }
 
     #header {
@@ -56,108 +56,4 @@
         background: var(--secondary-color);
     }
 </style>
-{% endblock %}
-
-# templates/admin/index.html
-{% extends "admin/base_site.html" %}
-{% load i18n static %}
-
-{% block extrastyle %}
-{{ block.super }}
-<style>
-    .dashboard-title {
-        font-size: 1.5em;
-        color: #333;
-        margin: 20px 0;
-    }
-    
-    .quick-stats {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 20px;
-        margin-bottom: 30px;
-    }
-    
-    .stat-card {
-        background: #fff;
-        padding: 20px;
-        border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    
-    .stat-card h3 {
-        margin: 0;
-        color: #666;
-        font-size: 0.9em;
-    }
-    
-    .stat-card .number {
-        font-size: 2em;
-        color: var(--primary-color);
-        font-weight: bold;
-    }
-</style>
-{% endblock %}
-
-{% block content %}
-<div id="content-main">
-    <h2 class="dashboard-title">Welcome to Djangify Admin</h2>
-    
-    <div class="quick-stats">
-        {% with post_count=models.blog.post.count %}
-        <div class="stat-card">
-            <h3>Total Posts</h3>
-            <div class="number">{{ post_count }}</div>
-        </div>
-        {% endwith %}
-        
-        {% with project_count=models.portfolio.project.count %}
-        <div class="stat-card">
-            <h3>Total Projects</h3>
-            <div class="number">{{ project_count }}</div>
-        </div>
-        {% endwith %}
-        
-        {% with comment_count=models.blog.comment.count %}
-        <div class="stat-card">
-            <h3>Total Comments</h3>
-            <div class="number">{{ comment_count }}</div>
-        </div>
-        {% endwith %}
-    </div>
-
-    {% if app_list %}
-        {% for app in app_list %}
-            <div class="app-{{ app.app_label }} module">
-                <table>
-                    <caption>
-                        <a href="{{ app.app_url }}" class="section" title="{% blocktranslate with name=app.name %}Models in the {{ name }} application{% endblocktranslate %}">{{ app.name }}</a>
-                    </caption>
-                    {% for model in app.models %}
-                        <tr class="model-{{ model.object_name|lower }}">
-                            {% if model.admin_url %}
-                                <th scope="row"><a href="{{ model.admin_url }}">{{ model.name }}</a></th>
-                            {% else %}
-                                <th scope="row">{{ model.name }}</th>
-                            {% endif %}
-
-                            <td>
-                                {% if model.add_url %}
-                                    <a href="{{ model.add_url }}" class="addlink">{% translate 'Add' %}</a>
-                                {% endif %}
-                            </td>
-                            <td>
-                                {% if model.admin_url %}
-                                    <a href="{{ model.admin_url }}" class="changelink">{% translate 'Change' %}</a>
-                                {% endif %}
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </table>
-            </div>
-        {% endfor %}
-    {% else %}
-        <p>{% translate 'You don't have permission to view or edit anything.' %}</p>
-    {% endif %}
-</div>
 {% endblock %}

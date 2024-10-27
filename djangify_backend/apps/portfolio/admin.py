@@ -1,8 +1,7 @@
-# apps/portfolio/admin.py
-
 from django.contrib import admin
 from django.utils.html import format_html
-from .models import Technology, Project, ProjectImage
+from djangify_backend.apps.portfolio.models import Technology, Project, ProjectImage 
+
 
 class ProjectImageInline(admin.TabularInline):
     model = ProjectImage
