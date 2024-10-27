@@ -55,7 +55,7 @@ ROOT_URLCONF = 'djangify_backend.config.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'djangify_backend' / 'templates'],  # Updated path
+        'DIRS': [BASE_DIR  / 'templates'],  # Updated path
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -158,4 +158,10 @@ SPECTACULAR_SETTINGS = {
     'PREPROCESSING_HOOKS': [],
     'SERVE_PERMISSIONS': ['rest_framework.permissions.AllowAny'],
     'SCHEMA_PATH_PREFIX': '/api/v1',
+}
+
+
+# Debug toolbar settings
+DEBUG_TOOLBAR_CONFIG = {
+    'SHOW_TOOLBAR_CALLBACK': lambda request: DEBUG,
 }
