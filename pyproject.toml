@@ -2,13 +2,17 @@
 name = "djangify"
 version = "0.1.0"
 description = "Django portfolio web application"
-authors = ["Diane Corriette"]
+authors = ["Diane Corriette <dcorriette@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.10"
-Django = "5.1"
-psycopg2-binary = "2.9"
+django = "^5.1.2"
+psycopg2-binary = "^2.9.10"
+python-dotenv = "^1.0.1"
+django-cors-headers = "^4.5.0"
+djangorestframework = "^3.15.2"
+django-debug-toolbar = "^4.4.6"
 
 
 [build-system]

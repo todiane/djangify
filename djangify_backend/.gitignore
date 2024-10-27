@@ -36,6 +36,7 @@ poetry.lock
 
 # Environments
 .env
+.env.example
 .venv
 env/
 venv/
