@@ -1,43 +1,20 @@
 from django.contrib import admin
-from django.utils.html import format_html
-from djangify_backend.apps.blog.models import Category, Tag, Post, Comment
+from django_summernote.admin import SummernoteModelAdmin
+from .models import Post, Category, Tag, Comment
 
-@admin.register(Category)
-class CategoryAdmin(admin.ModelAdmin):
-    list_display = ('name', 'slug', 'post_count')
-    search_fields = ('name', 'description')
-    prepopulated_fields = {'slug': ('name',)}
-    
-    def post_count(self, obj):
-        return obj.posts.count()
-    post_count.short_description = 'Number of Posts'
-
-@admin.register(Tag)
-class TagAdmin(admin.ModelAdmin):
-    list_display = ('name', 'slug', 'post_count')
-    search_fields = ('name',)
-    prepopulated_fields = {'slug': ('name',)}
-    
-    def post_count(self, obj):
-        return obj.posts.count()
-    post_count.short_description = 'Number of Posts'
-
-@admin.register(Post)
-class PostAdmin(admin.ModelAdmin):
-    list_display = ('title', 'category', 'status', 'is_featured', 
-                   'published_date', 'featured_image_preview')
-    list_filter = ('status', 'is_featured', 'category', 'tags', 'created_at')
-    search_fields = ('title', 'content', 'excerpt')
+class PostAdmin(SummernoteModelAdmin):
+    summernote_fields = ('content',)
+    list_display = ('title', 'category', 'status', 'created_at', 'is_featured')
+    list_filter = ('status', 'category', 'tags', 'created_at')
+    search_fields = ('title', 'content')
     prepopulated_fields = {'slug': ('title',)}
-    date_hierarchy = 'published_date'
-    filter_horizontal = ('tags',)
-    readonly_fields = ('created_at', 'updated_at', 'featured_image_preview')
+    date_hierarchy = 'created_at'
     
     fieldsets = (
         ('Content', {
-            'fields': ('title', 'slug', 'content', 'excerpt', 'featured_image', 'featured_image_preview')
+            'fields': ('title', 'slug', 'content', 'excerpt', 'featured_image')
         }),
-        ('Categorization', {
+        ('Categories and Tags', {
             'fields': ('category', 'tags')
         }),
         ('Publishing', {
@@ -46,28 +23,30 @@ class PostAdmin(admin.ModelAdmin):
         ('SEO', {
             'fields': ('meta_description',),
             'classes': ('collapse',)
-        }),
-        ('Timestamps', {
-            'fields': ('created_at', 'updated_at'),
-            'classes': ('collapse',)
-        }),
+        })
     )
-    
-    def featured_image_preview(self, obj):
-        """Generate a preview of the featured image"""
-        if obj and obj.featured_image:
-            return format_html('<img src="{}" style="max-height: 50px;"/>', 
-                             obj.featured_image.url)
-        return "No image"
-    featured_image_preview.short_description = 'Preview'
 
-@admin.register(Comment)
+class CategoryAdmin(admin.ModelAdmin):
+    list_display = ('name', 'description')
+    prepopulated_fields = {'slug': ('name',)}
+    search_fields = ('name',)
+
+class TagAdmin(admin.ModelAdmin):
+    list_display = ('name',)
+    prepopulated_fields = {'slug': ('name',)}
+    search_fields = ('name',)
+
 class CommentAdmin(admin.ModelAdmin):
     list_display = ('name', 'email', 'post', 'created_at', 'is_approved')
     list_filter = ('is_approved', 'created_at')
-    search_fields = ('name', 'email', 'content', 'post__title')
+    search_fields = ('name', 'email', 'content')
     actions = ['approve_comments']
-    
+
     def approve_comments(self, request, queryset):
         queryset.update(is_approved=True)
     approve_comments.short_description = "Approve selected comments"
+
+admin.site.register(Post, PostAdmin)
+admin.site.register(Category, CategoryAdmin)
+admin.site.register(Tag, TagAdmin)
+admin.site.register(Comment, CommentAdmin)

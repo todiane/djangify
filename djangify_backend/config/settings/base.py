@@ -31,6 +31,7 @@ INSTALLED_APPS = [
     'debug_toolbar',
     'django_filters',
     'drf_spectacular',
+    'django_summernote',
     
     # Local apps
     'djangify_backend.apps.blog',
@@ -164,4 +165,43 @@ SPECTACULAR_SETTINGS = {
 # Debug toolbar settings
 DEBUG_TOOLBAR_CONFIG = {
     'SHOW_TOOLBAR_CALLBACK': lambda request: DEBUG,
+}
+
+SUMMERNOTE_CONFIG = {
+    # Use this to customize the editor
+    'iframe': True,
+    'summernote': {
+        # Customize editor size
+        'width': '100%',
+        'height': '480',
+
+        # Toolbar customization
+        'toolbar': [
+            ['style', ['style']],
+            ['font', ['bold', 'underline', 'clear']],
+            ['fontname', ['fontname']],
+            ['color', ['color']],
+            ['para', ['ul', 'ol', 'paragraph']],
+            ['table', ['table']],
+            ['insert', ['link', 'picture', 'video']],
+            ['view', ['fullscreen', 'codeview', 'help']],
+        ],
+        
+        # Customize which tags are allowed
+        'styleTags': ['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'],
+        
+        # Set default font family
+        'fontNames': ['Arial', 'Arial Black', 'Comic Sans MS', 'Courier New', 'Helvetica Neue', 'Merriweather'],
+        
+        # Configure image upload settings
+        'attachments': True,
+        'width': '100%',
+    },
+    
+    # Set maximum file size (in bytes)
+    'attachment_filesize_limit': 5 * 1024 * 1024,  # 5MB
+    
+    # Restrict upload file types
+    'attachment_upload_to': 'summernote',
+    'attachment_allowed_types': ['image/jpeg', 'image/svg', 'image/png', 'image/gif'],
 }

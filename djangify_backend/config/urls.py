@@ -10,6 +10,7 @@ from djangify_backend.apps.core.views import home
 urlpatterns = [
     path('', home, name='home'),  # Homepage URL
     path('admin/', admin.site.urls),
+    path('summernote/', include('django_summernote.urls')),
     path('api/v1/blog/', include('djangify_backend.apps.blog.urls')),
     path('api/v1/portfolio/', include('djangify_backend.apps.portfolio.urls')),
     # API documentation endpoints
