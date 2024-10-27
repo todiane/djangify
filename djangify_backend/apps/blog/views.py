@@ -1,6 +1,7 @@
 from rest_framework import viewsets, permissions, filters
 from django_filters.rest_framework import DjangoFilterBackend
 from djangify_backend.apps.blog.models import Category, Tag, Post, Comment
+from djangify_backend.apps.blog.permissions import IsAuthorOrReadOnly, CommentPermission
 from djangify_backend.apps.blog.serializers import (
     CategorySerializer, 
     TagSerializer, 
@@ -22,7 +23,8 @@ class TagViewSet(viewsets.ReadOnlyModelViewSet):
     filter_backends = [filters.SearchFilter]
     search_fields = ['name']
 
-class PostViewSet(viewsets.ReadOnlyModelViewSet):
+class PostViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthorOrReadOnly]
     serializer_class = PostSerializer
     lookup_field = 'slug'
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
@@ -35,6 +37,7 @@ class PostViewSet(viewsets.ReadOnlyModelViewSet):
         ).prefetch_related('tags', 'comment_set')
 
 class CommentViewSet(viewsets.ModelViewSet):
+    permission_classes = [CommentPermission]
     serializer_class = CommentSerializer
     permission_classes = [permissions.AllowAny]
     
