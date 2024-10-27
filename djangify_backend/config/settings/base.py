@@ -29,6 +29,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'debug_toolbar',
+    'django_filters',
+    'drf_spectacular',
     
     # Local apps
     'djangify_backend.apps.blog',
@@ -122,3 +124,38 @@ INTERNAL_IPS = ['127.0.0.1']
 # CORS settings
 CORS_ALLOW_ALL_ORIGINS = DEBUG  # Only for development
 CORS_ALLOWED_ORIGINS = os.getenv('CORS_ALLOWED_ORIGINS', 'http://localhost:3000').split(',')
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny',
+    ],
+    'DEFAULT_FILTER_BACKENDS': [
+        'django_filters.rest_framework.DjangoFilterBackend',
+    ],
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 10,
+}
+
+# CORS settings for development
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",  # Next.js frontend
+]
+
+# For production, update this with your frontend domain
+
+# djangify_backend/config/settings/base.py
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Djangify API',
+    'DESCRIPTION': 'API for Djangify portfolio and blog',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    # Other settings...
+    'SWAGGER_UI_SETTINGS': {
+        'persistAuthorization': True,
+    },
+    'PREPROCESSING_HOOKS': [],
+    'SERVE_PERMISSIONS': ['rest_framework.permissions.AllowAny'],
+    'SCHEMA_PATH_PREFIX': '/api/v1',
+}
