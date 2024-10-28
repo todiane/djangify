@@ -3,7 +3,7 @@ from django.utils.text import slugify
 from django.core.exceptions import ValidationError
 from django.core.validators import FileExtensionValidator
 from PIL import Image
-from djangify_backend.apps.core.models import TimeStampedModel, SEOModel
+from djangify_backend.apps.core.models import TimeStampedModel, SEOModel, SluggedModel
 
 # Custom validators for the portfolio app
 def validate_project_image(value):
@@ -87,7 +87,7 @@ class ProjectImageManager(models.Manager):
         # Returns all images ordered by their order field
         return self.get_queryset().order_by('order')
 
-class Technology(TimeStampedModel):
+class Technology(TimeStampedModel, SluggedModel):
     """
     Technology model for categorizing project technologies.
     Includes timestamped fields from TimeStampedModel.
@@ -113,7 +113,7 @@ class Technology(TimeStampedModel):
     def __str__(self):
         return self.name
 
-class Project(TimeStampedModel, SEOModel):
+class Project(TimeStampedModel, SEOModel, SluggedModel):
     """
     Project model for portfolio projects.
     Includes SEO and timestamp capabilities.

@@ -1,6 +1,6 @@
 from django.db import models
 from django.utils.text import slugify
-from djangify_backend.apps.core.models import TimeStampedModel, SEOModel
+from djangify_backend.apps.core.models import TimeStampedModel, SEOModel, SluggedModel
 from django.core.validators import FileExtensionValidator
 from djangify_backend.apps.core.utils import validate_svg_file
 
@@ -69,7 +69,7 @@ class CommentManager(models.Manager):
         # Returns approved comments for a specific post
         return self.approved().filter(post__slug=post_slug)
 
-class Category(TimeStampedModel):
+class Category(TimeStampedModel, SluggedModel):
     """
     Category model for organizing blog posts.
     Includes timestamped fields from TimeStampedModel.
@@ -91,7 +91,7 @@ class Category(TimeStampedModel):
     def __str__(self):
         return self.name
 
-class Tag(TimeStampedModel):
+class Tag(TimeStampedModel, SluggedModel):
     """
     Tag model for labeling and organizing blog posts.
     Includes timestamped fields from TimeStampedModel.
@@ -111,7 +111,10 @@ class Tag(TimeStampedModel):
     def __str__(self):
         return self.name
 
-class Post(TimeStampedModel, SEOModel):
+    title = models.CharField(max_length=200)
+
+
+class Post(TimeStampedModel, SluggedModel, SEOModel):
     """
     Blog post model with SEO and timestamp capabilities.
     Supports draft/published status, categories, tags, and featured posts.
