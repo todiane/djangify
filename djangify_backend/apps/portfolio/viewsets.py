@@ -13,6 +13,11 @@ from djangify_backend.apps.portfolio.serializers import (
     TechnologySerializer,
     ProjectImageSerializer,
 )
+from djangify_backend.apps.core.throttling import (
+    WriteOperationThrottle,
+    UserBurstRateThrottle,
+    UserSustainedRateThrottle,
+)
 from djangify_backend.apps.portfolio.permissions import IsAdminOrReadOnly
 import logging
 
@@ -28,6 +33,11 @@ class ProjectViewSet(FileHandlingMixin, BaseViewSet):
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
     permission_classes = [IsAdminOrReadOnly]
+    throttle_classes = [
+        WriteOperationThrottle,
+        UserBurstRateThrottle,
+        UserSustainedRateThrottle,
+    ]
 
     # File handling configurations
     upload_field = "featured_image"  # Matches your Project model field
@@ -100,6 +110,10 @@ class TechnologyViewSet(BaseViewSet):
     search_fields = ["name"]
     cache_key_prefix = "technology"
     http_method_names = ["get"]  # Restrict to read-only operations
+    throttle_classes = [
+        UserBurstRateThrottle,
+        UserSustainedRateThrottle,
+    ]
 
     def get_queryset(self):
         return super().get_queryset().prefetch_related("projects")

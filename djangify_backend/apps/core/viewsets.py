@@ -8,6 +8,11 @@ from django.views.decorators.cache import cache_page
 from django.utils.translation import gettext_lazy as _
 from typing import Optional, Any, Dict
 import logging
+from djangify_backend.apps.core.throttling import (
+    WriteOperationThrottle,
+    UserBurstRateThrottle,
+    UserSustainedRateThrottle,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -102,6 +107,12 @@ class BaseViewSet(CacheMixin, ResponseMixin, viewsets.ModelViewSet):
     Base ViewSet combining caching and response formatting with standard CRUD operations.
     Implements common functionality for all ViewSets in the application.
     """
+
+    throttle_classes = [
+        WriteOperationThrottle,
+        UserBurstRateThrottle,
+        UserSustainedRateThrottle,
+    ]
 
     @method_decorator(cache_page(300))  # Cache list view for 5 minutes
     def list(self, request, *args, **kwargs):
@@ -232,3 +243,8 @@ class BaseViewSet(CacheMixin, ResponseMixin, viewsets.ModelViewSet):
     def perform_bulk_create(self, serializer):
         """Perform bulk creation of objects."""
         serializer.save()
+
+
+class ReadOnlyViewSet(BaseViewSet):
+    throttle_classes = [UserBurstRateThrottle, UserSustainedRateThrottle]
+    http_method_names = ["get"]  # Restrict to read-only operations

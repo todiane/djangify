@@ -14,6 +14,11 @@ from djangify_backend.apps.blog.serializers import (
     TagSerializer,
     CommentSerializer,
 )
+from djangify_backend.apps.core.throttling import (
+    WriteOperationThrottle,
+    UserBurstRateThrottle,
+    UserSustainedRateThrottle,
+)
 from djangify_backend.apps.blog.permissions import IsAuthorOrReadOnly, CommentPermission
 import logging
 
@@ -32,6 +37,11 @@ class PostViewSet(FileHandlingMixin, BaseViewSet):
     permission_classes = [IsAuthorOrReadOnly]
     lookup_field = "slug"
     cache_key_prefix = "post"
+    throttle_classes = [
+        WriteOperationThrottle,
+        UserBurstRateThrottle,
+        UserSustainedRateThrottle,
+    ]
 
     # File handling configurations
     upload_field = "featured_image"
@@ -132,6 +142,7 @@ class CategoryViewSet(BaseViewSet):
     search_fields = ["name", "description"]
     cache_key_prefix = "category"
     http_method_names = ["get"]  # Restrict to read-only operations
+    throttle_classes = [UserBurstRateThrottle, UserSustainedRateThrottle]
 
     def get_queryset(self):
         return super().get_queryset().prefetch_related("posts")
@@ -150,6 +161,7 @@ class TagViewSet(BaseViewSet):
     search_fields = ["name"]
     cache_key_prefix = "tag"
     http_method_names = ["get"]  # Restrict to read-only operations
+    throttle_classes = [UserBurstRateThrottle, UserSustainedRateThrottle]
 
     def get_queryset(self):
         return super().get_queryset().prefetch_related("posts")
@@ -168,6 +180,11 @@ class CommentViewSet(BaseViewSet):
     ordering_fields = ["created_at"]
     ordering = ["-created_at"]
     cache_key_prefix = "comment"
+    throttle_classes = [
+        WriteOperationThrottle,
+        UserBurstRateThrottle,
+        UserSustainedRateThrottle,
+    ]
 
     def get_queryset(self):
         """Filter comments based on user permissions and post."""

@@ -169,6 +169,17 @@ REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.AllowAny",
     ],
+    "DEFAULT_THROTTLE_CLASSES": [
+        "apps.core.throttling.BurstRateThrottle",
+        "apps.core.throttling.SustainedRateThrottle",
+    ],
+    "DEFAULT_THROTTLE_RATES": {
+        "burst": "10/minute",
+        "sustained": "100/hour",
+        "user_burst": "20/minute",
+        "user_sustained": "200/hour",
+        "write_operations": "30/hour",
+    },
     "DEFAULT_FILTER_BACKENDS": [
         "django_filters.rest_framework.DjangoFilterBackend",
         "rest_framework.filters.SearchFilter",
@@ -315,17 +326,18 @@ if not os.path.exists(LOGS_DIR):
     os.makedirs(LOGS_DIR)
 
 
-# Email settings
+# Email settings for notifications
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-EMAIL_HOST = "your-smtp-server"  # e.g., 'smtp.gmail.com'
+EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = "your-email@example.com"
-EMAIL_HOST_PASSWORD = "your-password"
-DEFAULT_FROM_EMAIL = "your-email@example.com"
-ADMIN_EMAIL = "admin@example.com"
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
+DEFAULT_FROM_EMAIL = os.getenv("EMAIL_HOST_USER")
+ADMIN_EMAIL = os.getenv("EMAIL_HOST_USER")
 
 
 # URL of your Next.js frontend
 FRONTEND_URL = "http://localhost:3000"  # Development
 # FRONTEND_URL = 'https://your-production-domain.com'  # Production
+SITE_NAME = "Djangify"
