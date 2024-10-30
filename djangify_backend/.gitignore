@@ -34,6 +34,10 @@ static/
 # Poetry
 poetry.lock
 
+# .gitignore
+logs/
+*.log
+
 # Environments
 .env
 .env.example

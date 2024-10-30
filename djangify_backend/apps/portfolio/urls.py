@@ -1,14 +1,14 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from djangify_backend.apps.portfolio.views import (
-    TechnologyViewSet,
-    ProjectViewSet
-)
+from .viewsets import ProjectViewSet, TechnologyViewSet, ProjectImageViewSet
+
 
 router = DefaultRouter()
-router.register(r'technologies', TechnologyViewSet, basename='technology')
-router.register(r'projects', ProjectViewSet, basename='project')
+# Full CRUD endpoints
+router.register("projects", ProjectViewSet, basename="project")
+# Read-only endpoint
+router.register("technologies", TechnologyViewSet, basename="technology")
+# Image handling endpoint
+router.register("project-images", ProjectImageViewSet, basename="project-image")
 
-urlpatterns = [
-    path('', include(router.urls)),
-] 
+urlpatterns = router.urls
