@@ -324,3 +324,8 @@ EMAIL_HOST_USER = "your-email@example.com"
 EMAIL_HOST_PASSWORD = "your-password"
 DEFAULT_FROM_EMAIL = "your-email@example.com"
 ADMIN_EMAIL = "admin@example.com"
+
+
+# URL of your Next.js frontend
+FRONTEND_URL = "http://localhost:3000"  # Development
+# FRONTEND_URL = 'https://your-production-domain.com'  # Production

@@ -8,7 +8,6 @@ from drf_spectacular.views import (
     SpectacularSwaggerView,
     SpectacularRedocView,
 )
-from djangify_backend.apps.core.views import home
 
 
 urlpatterns = [
