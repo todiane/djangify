@@ -1,6 +1,16 @@
 // src/lib/api/blog.ts
 import api from '@/lib/api';
 
+export interface Comment {
+  id: number;
+  name: string;
+  email: string;
+  content: string;
+  created_at: string;
+  is_approved: boolean;
+  post: number;
+}
+
 export interface Post {
   id: number;
   title: string;
@@ -22,6 +32,7 @@ export interface Post {
   updated_at: string;
   meta_description: string;
   is_featured: boolean;
+  comments: Comment[];
 }
 
 export interface PaginatedResponse<T> {
@@ -37,6 +48,7 @@ export interface PostFilters {
   search?: string;
   page?: number;
   is_featured?: boolean;
+  page_size?: number;
 }
 
 export const blogApi = {
@@ -50,9 +62,16 @@ export const blogApi = {
       if (filters.search) params.append('search', filters.search);
       if (filters.page) params.append('page', filters.page.toString());
       if (filters.is_featured !== undefined) params.append('is_featured', filters.is_featured.toString());
+      if (filters.page_size) params.append('page_size', filters.page_size.toString());
     }
 
     const response = await api.get<PaginatedResponse<Post>>(`/blog/posts/?${params}`);
+    return response.data;
+  },
+
+  // Get a single post by slug
+  getPost: async (slug: string): Promise<Post> => {
+    const response = await api.get<Post>(`/blog/posts/${slug}/`);
     return response.data;
   },
 
@@ -65,12 +84,6 @@ export const blogApi = {
       }
     });
     return response.data.results;
-  },
-
-  // Get a single post by slug
-  getPost: async (slug: string): Promise<Post> => {
-    const response = await api.get<Post>(`/blog/posts/${slug}/`);
-    return response.data;
   },
 
   // Get recent posts
@@ -94,5 +107,15 @@ export const blogApi = {
   getTags: async () => {
     const response = await api.get('/blog/tags/');
     return response.data.results;
-  }
+  },
+
+  // Create a comment
+  createComment: async (postSlug: string, comment: {
+    name: string;
+    email: string;
+    content: string;
+  }): Promise<Comment> => {
+    const response = await api.post<Comment>(`/blog/posts/${postSlug}/comments/`, comment);
+    return response.data;
+  },
 };
