@@ -75,6 +75,7 @@ class Technology(TimeStampedModel):
 
     class Meta:
         verbose_name_plural = "Technologies"
+        ordering = ["name"]  # Add default ordering by name
 
     def __str__(self):
         return self.name

@@ -4,6 +4,7 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from collections import OrderedDict
 from typing import Any, Dict
+from urllib import parse
 
 
 class CustomPagination(PageNumberPagination):
@@ -19,6 +20,44 @@ class CustomPagination(PageNumberPagination):
     page_size_query_param = "page_size"
     max_page_size = 100
     page_query_param = "page"
+
+    def remove_query_param(self, url: str, key: str) -> str:
+        """
+        Given a URL and a key, remove that query parameter from the URL.
+        """
+        parsed = parse.urlparse(url)
+        query_dict = dict(parse.parse_qsl(parsed.query))
+        query_dict.pop(key, None)
+        new_query = parse.urlencode(query_dict)
+        return parse.urlunparse(
+            (
+                parsed.scheme,
+                parsed.netloc,
+                parsed.path,
+                parsed.params,
+                new_query,
+                parsed.fragment,
+            )
+        )
+
+    def replace_query_param(self, url: str, key: str, value: Any) -> str:
+        """
+        Given a URL and a key/value pair, set or replace that query parameter in the URL.
+        """
+        parsed = parse.urlparse(url)
+        query_dict = dict(parse.parse_qsl(parsed.query))
+        query_dict[key] = value
+        new_query = parse.urlencode(query_dict)
+        return parse.urlunparse(
+            (
+                parsed.scheme,
+                parsed.netloc,
+                parsed.path,
+                parsed.params,
+                new_query,
+                parsed.fragment,
+            )
+        )
 
     def get_paginated_response(self, data: Any) -> Response:
         """

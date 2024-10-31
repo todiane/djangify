@@ -1,13 +1,12 @@
 from rest_framework import viewsets, filters
 from django_filters.rest_framework import DjangoFilterBackend
-from djangify_backend.apps.portfolio.models import Technology, Project
-from djangify_backend.apps.portfolio.permissions import IsAdminOrReadOnly
+from djangify_backend.apps.portfolio.models import Technology, Project, ProjectImage
 from djangify_backend.apps.portfolio.serializers import (
     TechnologySerializer,
     ProjectSerializer,
+    ProjectImageSerializer,
 )
-from .filters import ProjectFilter
-from .pagination import CustomPortfolioPagination
+from djangify_backend.apps.portfolio.permissions import IsAdminOrReadOnly
 
 
 class TechnologyViewSet(viewsets.ReadOnlyModelViewSet):
@@ -16,25 +15,26 @@ class TechnologyViewSet(viewsets.ReadOnlyModelViewSet):
     lookup_field = "slug"
     filter_backends = [filters.SearchFilter]
     search_fields = ["name"]
+    ordering = ["name"]  # Add explicit ordering in viewset
 
 
 class ProjectViewSet(viewsets.ModelViewSet):
-    queryset = Project.objects.all()
+    permission_classes = [IsAdminOrReadOnly]
     serializer_class = ProjectSerializer
-    pagination_class = CustomPortfolioPagination
-    filter_backends = [
-        DjangoFilterBackend,
-        filters.SearchFilter,
-        filters.OrderingFilter,
-    ]
-    filterset_class = ProjectFilter
+    lookup_field = "slug"
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
+    filterset_fields = ["technologies__slug", "is_featured"]
     search_fields = ["title", "description", "short_description"]
-    ordering_fields = ["created_at", "order", "title"]
-    ordering = ["order", "-created_at"]
 
     def get_queryset(self):
         return (
             Project.objects.all()
-            .prefetch_related("technologies", "images")
-            .order_by("order", "-created_at")
+            .prefetch_related("technologies", "projectimage_set")
+            .order_by("order")
         )
+
+
+class ProjectImageViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAdminOrReadOnly]
+    queryset = ProjectImage.objects.all()
+    serializer_class = ProjectImageSerializer
