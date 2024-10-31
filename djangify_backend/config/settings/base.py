@@ -121,7 +121,7 @@ MAX_UPLOAD_SIZE = 5242880
 
 # Image optimization settings
 IMAGE_OPTIMIZATION = {
-    "MAX_DIMENSION": (800, 800),  # Maximum dimensions for project images
+    "MAX_DIMENSION": (1920, 1080),  # Maximum dimensions for project images
     "THUMBNAIL_SIZE": (200, 200),  # Thumbnail dimensions
     "QUALITY": 85,  # JPEG quality
     "FORMATS": ["JPEG", "PNG"],  # Allowed formats

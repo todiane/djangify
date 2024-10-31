@@ -1,193 +1,162 @@
 from django.db import models
 from django.utils.text import slugify
 from django.core.exceptions import ValidationError
+import re
 from django.core.validators import FileExtensionValidator
+from django.conf import settings
+from djangify_backend.apps.core.models import TimeStampedModel, SEOModel
+import os
 from PIL import Image
-from djangify_backend.apps.core.models import TimeStampedModel, SEOModel, SluggedModel
-from djangify_backend.apps.portfolio.utils import (
-    optimize_image,
-    generate_thumbnail,
-    upload_to_project,
-    upload_to_project_thumb,
-)
+import logging
+
+logger = logging.getLogger(__name__)
 
 
-# Custom validators for the portfolio app
-def validate_project_image(value):
-    """Validate project image file size and dimensions."""
-    # Define maximum file size (5MB)
-    max_size = 5 * 1024 * 1024
-    if value.size > max_size:
-        raise ValidationError("Image file size must not exceed 5MB.")
+def validate_project_image(image):
+    """
+    Validate image file size, dimensions, and format
+    """
+    # Check file size
+    if image.size > settings.MAX_UPLOAD_SIZE:
+        raise ValidationError(
+            f"Image file too large. Maximum size is {settings.MAX_UPLOAD_SIZE/1024/1024}MB"
+        )
 
+    # Check file format
     try:
-        image = Image.open(value)
-        min_width = 800
-        min_height = 600
-        if image.width < min_width or image.height < min_height:
-            raise ValidationError(
-                f"Image dimensions must be at least {min_width}x{min_height} pixels."
-            )
+        with Image.open(image) as img:
+            if img.format.upper() not in settings.IMAGE_OPTIMIZATION["FORMATS"]:
+                raise ValidationError(
+                    f"Unsupported image format. Allowed formats are: {', '.join(settings.IMAGE_OPTIMIZATION['FORMATS'])}"
+                )
     except Exception as e:
-        raise ValidationError("Invalid image file.")
+        logger.error(f"Error validating image: {str(e)}")
+        raise ValidationError(
+            "Invalid image file. Please ensure the file is a valid image."
+        )
+
+
+def project_image_path(instance, filename):
+    """
+    Generate upload path for project images
+    """
+    # Get the file extension
+    ext = filename.split(".")[-1]
+    # Create a new filename using the project slug
+    filename = f"{instance.slug}.{ext}"
+    return os.path.join("projects", filename)
 
 
 def validate_github_url(value):
-    """Validate that the URL is a GitHub repository URL."""
-    if value and not value.startswith(("https://github.com/", "http://github.com/")):
-        raise ValidationError(
-            "Invalid GitHub URL. URL must start with https://github.com/"
-        )
+    github_url_pattern = re.compile(
+        r"^(https?://)?(www\.)?github\.com/[A-Za-z0-9_.-]+/?$"
+    )
+    if not github_url_pattern.match(value):
+        raise ValidationError(f"{value} is not a valid GitHub URL")
 
 
 def validate_technology_icon(value):
-    """Validate technology icon name."""
-    allowed_icons = {"python", "javascript", "react", "django", "nextjs", "typescript"}
-    if value not in allowed_icons:
-        raise ValidationError(
-            f'Invalid icon name. Must be one of: {", ".join(allowed_icons)}'
-        )
-
-
-class ProjectManager(models.Manager):
-    """
-    Custom manager for Project model providing common query operations
-    and optimized database queries.
-    """
-
-    def get_queryset(self):
-        # Optimize database queries by prefetching related fields
-        return super().get_queryset().prefetch_related("technologies", "images")
-
-    def featured(self):
-        # Returns featured projects ordered by the order field
-        return self.get_queryset().filter(is_featured=True).order_by("order")
-
-    def by_technology(self, technology_slug):
-        # Returns projects filtered by technology
-        return self.get_queryset().filter(technologies__slug=technology_slug)
-
-    def search(self, query):
-        # Searches projects by title, description, or short description
-        return (
-            self.get_queryset()
-            .filter(
-                models.Q(title__icontains=query)
-                | models.Q(description__icontains=query)
-                | models.Q(short_description__icontains=query)
-            )
-            .distinct()
-        )
-
-    def with_github(self):
-        # Returns projects that have GitHub links
-        return self.get_queryset().exclude(github_url="")
-
-    def with_live_demo(self):
-        # Returns projects that have live demo links
-        return self.get_queryset().exclude(project_url="")
-
-
-class ProjectImageManager(models.Manager):
-    """
-    Custom manager for ProjectImage model providing optimized queries
-    and common filtering operations.
-    """
-
-    def get_queryset(self):
-        # Optimize database queries by selecting related project
-        return super().get_queryset().select_related("project")
-
-    def for_project(self, project_slug):
-        # Returns all images for a specific project
-        return self.get_queryset().filter(project__slug=project_slug)
-
-    def ordered(self):
-        # Returns all images ordered by their order field
-        return self.get_queryset().order_by("order")
-
-
-class Technology(TimeStampedModel, SluggedModel):
-    """
-    Technology model for categorizing project technologies.
-    Includes timestamped fields from TimeStampedModel.
-    """
-
-    name = models.CharField(max_length=100)
-    slug = models.SlugField(unique=True)
-    icon = models.CharField(
-        max_length=50,
-        validators=[validate_technology_icon],
-        help_text="Icon name for the technology (e.g., 'python', 'react')",
+    icon_url_pattern = re.compile(
+        r"^(https?://)?(www\.)?example\.com/icons/[A-Za-z0-9_.-]+\.svg$"
     )
+    if not icon_url_pattern.match(value):
+        raise ValidationError(f"{value} is not a valid technology icon URL")
+
+
+class Technology(TimeStampedModel):
+    name = models.CharField(max_length=100, null=True)
+    slug = models.SlugField(unique=True)
+    icon = models.CharField(max_length=50)
 
     def save(self, *args, **kwargs):
-        # Auto-generate slug from name if not provided
         if not self.slug:
             self.slug = slugify(self.name)
         super().save(*args, **kwargs)
 
     class Meta:
         verbose_name_plural = "Technologies"
-        ordering = ["name"]
 
     def __str__(self):
         return self.name
 
 
-class Project(TimeStampedModel, SEOModel, SluggedModel):
+def project_image_path(instance, filename):
     """
-    Project model for portfolio projects.
-    Includes SEO and timestamp capabilities.
+    Generate upload path for project's featured image
     """
+    ext = filename.split(".")[-1]
+    filename = f"{instance.slug}.{ext}"
+    return os.path.join("projects", filename)
 
-    title = models.CharField(max_length=200)
+
+def project_gallery_image_path(instance, filename):
+    """
+    Generate upload path for project gallery images
+    """
+    ext = filename.split(".")[-1]
+    # Use project slug and a unique identifier for gallery images
+    filename = f"{instance.project.slug}-{instance.order}.{ext}"
+    return os.path.join("projects", "gallery", filename)
+
+
+class Project(TimeStampedModel, SEOModel):
+    title = models.CharField(max_length=200, default="Default Title")
     slug = models.SlugField(unique=True)
     description = models.TextField()
-    short_description = models.CharField(
-        max_length=200, help_text="A brief summary of the project"
-    )
+    short_description = models.CharField(max_length=200)
     featured_image = models.ImageField(
-        upload_to=upload_to_project,
+        upload_to=project_image_path,  # Use project_image_path for featured image
         validators=[
             FileExtensionValidator(allowed_extensions=["jpg", "jpeg", "png"]),
             validate_project_image,
         ],
-        help_text="Main project image (min 800x600px, max 5MB)",
-    )
-    thumbnail = models.ImageField(
-        upload_to=upload_to_project_thumb,
-        blank=True,
+        help_text="Upload a JPG or PNG image (max 5MB)",
         null=True,
-        help_text="Automatically generated thumbnail",
+        blank=True,
     )
     technologies = models.ManyToManyField(Technology, related_name="projects")
-    project_url = models.URLField(blank=True, help_text="URL for the live project demo")
-    github_url = models.URLField(
-        blank=True, validators=[validate_github_url], help_text="GitHub repository URL"
-    )
+    project_url = models.URLField(blank=True)
+    github_url = models.URLField(blank=True)
     is_featured = models.BooleanField(default=False)
-    order = models.IntegerField(
-        default=0,
-        help_text="Order in which the project appears (lower numbers appear first)",
-    )
+    order = models.IntegerField(default=0)
 
-    objects = ProjectManager()
+    def clean(self):
+        """
+        Custom validation for the model
+        """
+        super().clean()
+        if self.featured_image:
+            validate_project_image(self.featured_image)
 
     def save(self, *args, **kwargs):
-        # Auto-generate slug from title if not provided
         if not self.slug:
             self.slug = slugify(self.title)
-
-        if self.featured_image:
-            # Optimize the main image
-            self.featured_image = optimize_image(self.featured_image)
-
-            # Generate thumbnail if it doesn't exist
-            if not self.thumbnail:
-                self.thumbnail = generate_thumbnail(self.featured_image)
-
         super().save(*args, **kwargs)
+
+        # Process the image after save if it exists
+        if self.featured_image:
+            try:
+                img = Image.open(self.featured_image.path)
+
+                # Convert image to RGB if it's not
+                if img.mode != "RGB":
+                    img = img.convert("RGB")
+
+                # Resize image if larger than maximum dimensions
+                max_size = settings.IMAGE_OPTIMIZATION["MAX_DIMENSION"]
+                if img.size[0] > max_size[0] or img.size[1] > max_size[1]:
+                    img.thumbnail(max_size, Image.Resampling.LANCZOS)
+
+                # Save optimized image
+                img.save(
+                    self.featured_image.path,
+                    quality=settings.IMAGE_OPTIMIZATION["QUALITY"],
+                    optimize=True,
+                )
+            except Exception as e:
+                logger.error(
+                    f"Error processing image for project {self.title}: {str(e)}"
+                )
 
     class Meta:
         ordering = ["order", "-created_at"]
@@ -197,31 +166,53 @@ class Project(TimeStampedModel, SEOModel, SluggedModel):
 
 
 class ProjectImage(TimeStampedModel):
-    """
-    ProjectImage model for additional project images.
-    Includes ordering capability and image validation.
-    """
-
     project = models.ForeignKey(
         Project, on_delete=models.CASCADE, related_name="images"
     )
     image = models.ImageField(
-        upload_to="projects",
-        null=True,
-        blank=True,  # Allow blank in forms
+        upload_to=project_gallery_image_path,  # Note the updated function name
         validators=[
             FileExtensionValidator(allowed_extensions=["jpg", "jpeg", "png"]),
             validate_project_image,
         ],
-        help_text="Additional project image (min 800x600px, max 5MB)",
+        null=True,
+        blank=True,
     )
-    caption = models.CharField(max_length=200, help_text="Description of the image")
-    order = models.IntegerField(
-        default=0,
-        help_text="Order in which the image appears (lower numbers appear first)",
-    )
+    caption = models.CharField(max_length=200)
+    order = models.IntegerField(default=0)
 
-    objects = ProjectImageManager()
+    def clean(self):
+        super().clean()
+        if self.image:
+            validate_project_image(self.image)
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+
+        # Process the image after save
+        if self.image:
+            try:
+                img = Image.open(self.image.path)
+
+                # Convert image to RGB if it's not
+                if img.mode != "RGB":
+                    img = img.convert("RGB")
+
+                # Resize image if larger than maximum dimensions
+                max_size = settings.IMAGE_OPTIMIZATION["MAX_DIMENSION"]
+                if img.size[0] > max_size[0] or img.size[1] > max_size[1]:
+                    img.thumbnail(max_size, Image.Resampling.LANCZOS)
+
+                # Save optimized image
+                img.save(
+                    self.image.path,
+                    quality=settings.IMAGE_OPTIMIZATION["QUALITY"],
+                    optimize=True,
+                )
+            except Exception as e:
+                logger.error(
+                    f"Error processing image for project image {self.id}: {str(e)}"
+                )
 
     class Meta:
         ordering = ["order"]

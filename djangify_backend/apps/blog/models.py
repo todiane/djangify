@@ -142,9 +142,13 @@ class Post(TimeStampedModel, SluggedModel, SEOModel):
     )
 
     def validate_image(file):
-        # Validate SVG files for security
-        if file.content_type == "image/svg+xml":
-            validate_svg_file(file)
+        """
+        Validate SVG files for security
+        """
+        if hasattr(file, "name") and file.name.lower().endswith(".svg"):
+            file_content = file.read().decode("utf-8")
+            validate_svg_file(file_content)
+            file.seek(0)
 
     title = models.CharField(max_length=200)
     slug = models.SlugField(unique=True)

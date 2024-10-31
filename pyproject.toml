@@ -2,7 +2,7 @@
 name = "djangify"
 version = "0.1.0"
 description = "A Django and Next.js portfolio and blog application"
-authors = ["Your Name <your.email@example.com>"]
+authors = ["Diane Corriette <djangify@gmail.com>"]
 
 [tool.poetry.dependencies]
 python = ">=3.11,<3.12"
