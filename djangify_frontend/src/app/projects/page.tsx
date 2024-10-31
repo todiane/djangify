@@ -1,15 +1,25 @@
-import { FeaturedProject, ProjectCard, NewsletterForm } from '@/components/portfolio';
+// src/app/projects/page.tsx
+import { FeaturedProject, ProjectCard } from '../../components/portfolio';
+import { NewsletterForm } from '../../components/blog/NewsletterForm';
+import type { Project } from '../../components/portfolio/types';
 
 async function getProjects() {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/`);
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/projects/`);
+  if (!res.ok) throw new Error('Failed to fetch projects');
   const data = await res.json();
-  return data.data; // Assuming your API follows the standard response format
+  return data;
 }
 
-export default async function PortfolioPage() {
-  const projects = await getProjects();
-  const [featured, ...rest] = projects;
-  const [secondProject, thirdProject, ...otherProjects] = rest;
+export default async function ProjectsPage() {
+  const data = await getProjects();
+  const allProjects = data.results as Project[];
+
+  // Filter featured projects
+  const featuredProjects = allProjects.filter(project => project.isFeatured);
+  const otherProjects = allProjects.filter(project => !project.isFeatured);
+
+  const mainFeature = featuredProjects[0];
+  const secondaryFeatures = featuredProjects.slice(1, 3);
 
   return (
     <div className="container mx-auto px-4 py-12">
@@ -25,13 +35,14 @@ export default async function PortfolioPage() {
       <div className="grid md:grid-cols-2 gap-6 mb-12">
         {/* Main Featured Project */}
         <div className="md:row-span-2">
-          <FeaturedProject {...featured} />
+          {mainFeature && <FeaturedProject {...mainFeature} />}
         </div>
 
         {/* Secondary Featured Projects */}
         <div className="grid gap-6">
-          <ProjectCard {...secondProject} />
-          <ProjectCard {...thirdProject} />
+          {secondaryFeatures.map((project) => (
+            <ProjectCard key={project.id} {...project} />
+          ))}
         </div>
       </div>
 
@@ -40,10 +51,10 @@ export default async function PortfolioPage() {
         <NewsletterForm />
       </div>
 
-      {/* Other Projects Grid */}
+      {/* Project Grid */}
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {otherProjects.map((project: any) => (
-          <ProjectCard key={project.slug} {...project} />
+        {otherProjects.map((project) => (
+          <ProjectCard key={project.id} {...project} />
         ))}
       </div>
     </div>
