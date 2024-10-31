@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState, ReactNode } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -18,16 +20,16 @@ const Layout = ({ children, isAdmin = false }: LayoutProps) => {
   const [currentPath, setCurrentPath] = useState('/');
 
   const publicNavItems = [
-    { label: 'Home', icon: Home, href: '#' },
-    { label: 'Projects', icon: Briefcase, href: '#/projects' },
-    { label: 'Blog', icon: BookOpen, href: '#/blog' },
-    { label: 'About', icon: User, href: '#/about' },
-    { label: 'Contact', icon: Mail, href: '#/contact' }
+    { label: 'Home', icon: Home, href: '/' },
+    { label: 'Projects', icon: Briefcase, href: '/projects' },
+    { label: 'Blog', icon: BookOpen, href: '/blog' },
+    { label: 'About', icon: User, href: '/about' },
+    { label: 'Contact', icon: Mail, href: '/contact' }
   ];
 
   const adminNavItems = [
-    { label: 'New Post', icon: PenSquare, href: '#/admin/new-post' },
-    { label: 'Settings', icon: Settings, href: '#/admin/settings' }
+    { label: 'New Post', icon: PenSquare, href: '/admin/new-post' },
+    { label: 'Settings', icon: Settings, href: '/admin/settings' }
   ];
 
   const navigationItems = isAdmin
@@ -35,17 +37,16 @@ const Layout = ({ children, isAdmin = false }: LayoutProps) => {
     : publicNavItems;
 
   const footerLinks = [
-    { label: 'Blog', href: '#/blog' },
-    { label: 'Projects', href: '#/projects' },
-    { label: 'About', href: '#/about' },
-    { label: 'Contact', href: '#/contact' },
+    { label: 'Blog', href: '/blog' },
+    { label: 'Projects', href: '/projects' },
+    { label: 'About', href: '/about' },
+    { label: 'Contact', href: '/contact' },
   ];
 
   return (
-    <div className="flex flex-col min-h-screen bg-white">
-      {/* Rest of the component remains the same */}
+    <div className="flex flex-col min-h-screen bg-background">
       {/* Top Navigation Bar */}
-      <div className="fixed top-0 right-0 left-0 h-16 bg-white border-b z-50 flex items-center justify-between px-4 lg:pl-56">
+      <div className="fixed top-0 right-0 left-0 h-16 bg-background border-b z-50 flex items-center justify-between px-4 lg:pl-56">
         <Button
           variant="ghost"
           onClick={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -62,14 +63,14 @@ const Layout = ({ children, isAdmin = false }: LayoutProps) => {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onFocus={() => setIsSearchOpen(true)}
-              className="w-full px-4 py-2 border rounded-md pl-10 focus:outline-none focus:ring-2 focus:ring-[#005b5e] focus:border-transparent"
+              className="w-full px-4 py-2 border rounded-md pl-10 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
             />
-            <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
           </div>
         </div>
 
         <div className="flex items-center space-x-4">
-          <span className="text-[#403f3f] font-semibold">Your Name</span>
+          <span className="text-foreground font-semibold">Your Name</span>
           <img
             src="/api/placeholder/40/40"
             alt="Profile"
@@ -81,7 +82,7 @@ const Layout = ({ children, isAdmin = false }: LayoutProps) => {
       {/* Sidebar */}
       <aside
         className={`
-          fixed top-0 left-0 h-[calc(100vh-64px)] bg-white border-r z-40 transition-all duration-300
+          fixed top-0 left-0 h-screen bg-background border-r z-40 transition-all duration-300
           lg:w-56 lg:translate-x-0 pt-16 lg:pt-0
           ${isSidebarOpen ? 'w-56 translate-x-0' : 'w-56 -translate-x-full'}
           ${!isSidebarOpen && 'lg:w-16'}
@@ -93,9 +94,9 @@ const Layout = ({ children, isAdmin = false }: LayoutProps) => {
               key={item.href}
               href={item.href}
               className={`
-                flex items-center px-4 py-3 text-[#403f3f] hover:bg-gray-50
-                hover:text-[#737373] transition-colors duration-200
-                ${currentPath === item.href ? 'bg-gray-50 text-[#005b5e]' : ''}
+                flex items-center px-4 py-3 text-foreground hover:bg-muted
+                hover:text-muted-foreground transition-colors duration-200
+                ${currentPath === item.href ? 'bg-muted text-primary' : ''}
               `}
             >
               <item.icon className="w-5 h-5" />
@@ -117,38 +118,34 @@ const Layout = ({ children, isAdmin = false }: LayoutProps) => {
         </div>
       </main>
 
-      {/* Footer - Full Width */}
-      <footer className="h-16 border-t bg-white mt-auto">
+      {/* Footer */}
+      <footer className="h-16 border-t bg-background mt-auto">
         <div className="h-full max-w-[1920px] mx-auto px-4 lg:px-8 flex items-center justify-between">
-          {/* Logo/Brand */}
           <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-[#005b5e] rounded flex items-center justify-center">
-              <span className="text-white font-bold">D</span>
+            <div className="w-8 h-8 bg-primary rounded flex items-center justify-center">
+              <span className="text-primary-foreground font-bold">D</span>
             </div>
-            <span className="text-lg font-semibold text-[#403f3f]">Djangify</span>
+            <span className="text-lg font-semibold text-foreground">Djangify</span>
           </div>
 
-          {/* Navigation & Social Links */}
           <div className="flex items-center space-x-8">
-            {/* Footer Navigation */}
             <nav className="hidden md:flex items-center space-x-6">
               {footerLinks.map((link) => (
                 <a
                   key={link.href}
                   href={link.href}
-                  className="text-sm text-[#737373] hover:text-[#403f3f] transition-colors"
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                 >
                   {link.label}
                 </a>
               ))}
             </nav>
 
-            {/* Social Links */}
             <div className="flex items-center space-x-4">
-              <a href="#" className="text-[#737373] hover:text-[#403f3f] transition-colors">
+              <a href="#" className="text-muted-foreground hover:text-foreground transition-colors">
                 <Github className="w-5 h-5" />
               </a>
-              <a href="#" className="text-[#737373] hover:text-[#403f3f] transition-colors">
+              <a href="#" className="text-muted-foreground hover:text-foreground transition-colors">
                 <Linkedin className="w-5 h-5" />
               </a>
             </div>
