@@ -27,7 +27,6 @@ INSTALLED_APPS = [
     # Third party apps
     "rest_framework",
     "corsheaders",
-    "debug_toolbar",
     "django_filters",
     "drf_spectacular",
     "django_summernote",
@@ -38,7 +37,6 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    "debug_toolbar.middleware.DebugToolbarMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",  # Add this line
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -130,8 +128,6 @@ IMAGE_OPTIMIZATION = {
 # Default primary key field type
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-# Debug Toolbar
-INTERNAL_IPS = ["127.0.0.1"]
 
 # CORS settings
 CORS_ALLOW_ALL_ORIGINS = DEBUG  # Allows all origins in development
@@ -341,3 +337,5 @@ ADMIN_EMAIL = os.getenv("EMAIL_HOST_USER")
 FRONTEND_URL = "http://localhost:3000"  # Development
 # FRONTEND_URL = 'https://your-production-domain.com'  # Production
 SITE_NAME = "Djangify"
+
+APPEND_SLASH = True
