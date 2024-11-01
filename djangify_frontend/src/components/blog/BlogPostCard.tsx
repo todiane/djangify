@@ -1,6 +1,7 @@
 // src/components/blog/BlogPostCard.tsx
 import { Card } from "@/components/ui/card";
 import type { Post } from "@/lib/api/blog";
+import Link from "next/link";
 
 function formatDate(dateString: string) {
   const date = new Date(dateString);
@@ -24,39 +25,44 @@ interface BlogPostCardProps {
   isMain?: boolean;
 }
 
-export function BlogPostCard({ post, isMain = false }: BlogPostCardProps) {
+
+
+export function BlogPostCard({ post }: BlogPostCardProps): JSX.Element {
   return (
     <Card className="overflow-hidden group">
-      <div className={`aspect-[16/9] relative ${isMain ? 'aspect-[16/9]' : 'aspect-[2/1]'}`}>
-        <img
-          src={post.featured_image}
-          alt={post.title}
-          className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-        />
-      </div>
+      <Link href={`/blog/${post.slug}`}>
+        <div className="aspect-[16/9] relative">
+          <img
+            src={post.featured_image}
+            alt={post.title}
+            className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+          />
+        </div>
+      </Link>
       <div className="p-6">
         <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
           <time>{formatDate(post.published_date)}</time>
           <span>•</span>
-          <span>{formatReadingTime(post.reading_time)}</span>
+          <span>{post.reading_time} min read</span>
           <span>•</span>
-          <span>{formatWordCount(post.word_count)}</span>
+          <span>{post.word_count} words</span>
         </div>
         <h3 className="text-xl font-semibold mb-2 line-clamp-2">
-          <a href={`/blog/${post.slug}`} className="hover:text-primary">
+          <Link href={`/blog/${post.slug}`} className="hover:text-primary">
             {post.title}
-          </a>
+          </Link>
         </h3>
         <p className="text-muted-foreground line-clamp-2 mb-4">
           {post.excerpt}
         </p>
-        <a
+        <Link
           href={`/blog/${post.slug}`}
           className="inline-flex items-center text-sm font-medium text-primary hover:underline"
         >
           Read More
-        </a>
+        </Link>
       </div>
     </Card>
   );
 }
+

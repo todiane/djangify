@@ -1,15 +1,9 @@
 'use client';
 
 import { useState, FormEvent } from "react";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { AlertCircle } from "lucide-react";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { formatDate } from "@/lib/utils";
 import { blogApi } from "@/lib/api/blog";
 import type { Comment } from "@/lib/api/blog";
+
 
 interface CommentFormData {
   name: string;
