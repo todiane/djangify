@@ -1,4 +1,4 @@
-// src/components/portfolio/ProjectFilter.tsx
+// src/components/portfolio/PortfolioFilter.tsx
 import { Button } from '@/components/ui/button';
 import { Check } from 'lucide-react';
 
@@ -7,17 +7,17 @@ interface Technology {
   slug: string;
 }
 
-interface ProjectFilterProps {
+interface PortfolioFilterProps {
   technologies: Technology[];
   selectedTech: string | null;
   onSelectTech: (slug: string | null) => void;
 }
 
-export function ProjectFilter({
+export function PortfolioFilter({
   technologies,
   selectedTech,
   onSelectTech,
-}: ProjectFilterProps) {
+}: PortfolioFilterProps) {
   return (
     <div className="flex flex-wrap gap-2 mb-8">
       <Button

@@ -266,6 +266,12 @@ MIME_TYPES = {
     "svg": "image/svg+xml",
 }
 
+# djangify_backend/config/settings/development.py
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.dummy.DummyCache",
+    }
+}
 
 # Logging Configuration
 LOGGING = {

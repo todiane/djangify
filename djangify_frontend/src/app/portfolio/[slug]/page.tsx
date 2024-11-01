@@ -1,4 +1,3 @@
-// src/app/projects/[slug]/page.tsx
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -8,68 +7,69 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Github, ExternalLink } from 'lucide-react';
-import { ProjectLightbox } from "@/components/portfolio/PortfolioLightbox";
+import { PortfolioLightbox } from "@/components/portfolio/PortfolioLightbox";
 import { portfolioApi } from '@/lib/api/portfolio';
-import type { Project } from '@/lib/api/portfolio';
+import type { Portfolio } from '@/lib/api/portfolio';
+import { LoadingPortfolio } from "@/components/ui/LoadingPortfolio";
 
-interface ProjectPageProps {
+interface PortfolioItemPageProps {
   params: {
     slug: string;
   };
 }
 
-export default function ProjectPage({ params }: ProjectPageProps) {
-  const [project, setProject] = useState<Project | null>(null);
+export default function PortfolioItemPage({ params }: PortfolioItemPageProps) {
+  const [item, setItem] = useState<Portfolio | null>(null);
   const [loading, setLoading] = useState(true);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
 
   useEffect(() => {
-    const fetchProject = async () => {
+    const fetchPortfolioItem = async () => {
       try {
-        const projectData = await portfolioApi.getProject(params.slug);
-        setProject(projectData);
+        const itemData = await portfolioApi.getPortfolioItem(params.slug);
+        setItem(itemData);
       } catch {
         notFound();
       } finally {
         setLoading(false);
       }
     };
-    fetchProject();
+    fetchPortfolioItem();
   }, [params.slug]);
 
   if (loading) {
-    return <div>Loading...</div>; // You can replace this with a proper loading skeleton
+    return <LoadingPortfolio />;
   }
 
-  if (!project) {
+  if (!item) {
     return notFound();
   }
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-12">
       <div className="space-y-8">
-        {/* Project Header */}
+        {/* Portfolio Item Header */}
         <div className="space-y-4">
-          <h1 className="text-4xl font-bold">{project.title}</h1>
+          <h1 className="text-4xl font-bold">{item.title}</h1>
           <div className="flex flex-wrap gap-2">
-            {project.technologies.map((tech) => (
+            {item.technologies.map((tech) => (
               <Badge key={tech.slug} variant="secondary">
                 {tech.name}
               </Badge>
             ))}
           </div>
           <div className="flex gap-4">
-            {project.github_url && (
+            {item.github_url && (
               <Button asChild variant="outline">
-                <a href={project.github_url} target="_blank" rel="noopener noreferrer">
+                <a href={item.github_url} target="_blank" rel="noopener noreferrer">
                   <Github className="mr-2 h-4 w-4" /> View Source
                 </a>
               </Button>
             )}
-            {project.project_url && (
+            {item.project_url && (
               <Button asChild>
-                <a href={project.project_url} target="_blank" rel="noopener noreferrer">
+                <a href={item.project_url} target="_blank" rel="noopener noreferrer">
                   <ExternalLink className="mr-2 h-4 w-4" /> Live Demo
                 </a>
               </Button>
@@ -80,18 +80,18 @@ export default function ProjectPage({ params }: ProjectPageProps) {
         {/* Featured Image */}
         <div className="aspect-video relative rounded-lg overflow-hidden">
           <Image
-            src={project.featured_image}
-            alt={project.title}
+            src={item.featured_image}
+            alt={item.title}
             fill
             className="object-cover"
             priority
           />
         </div>
 
-        {/* Project Images Grid */}
-        {project.images.length > 0 && (
+        {/* Portfolio Images Grid */}
+        {item.images.length > 0 && (
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            {project.images.map((image, index) => (
+            {item.images.map((image, index) => (
               <Card
                 key={image.id}
                 className="overflow-hidden cursor-pointer transition-transform hover:scale-[1.02]"
@@ -116,14 +116,14 @@ export default function ProjectPage({ params }: ProjectPageProps) {
           </div>
         )}
 
-        {/* Project Description */}
+        {/* Description */}
         <div className="prose max-w-none">
-          <div dangerouslySetInnerHTML={{ __html: project.description }} />
+          <div dangerouslySetInnerHTML={{ __html: item.description }} />
         </div>
 
-        {/* Lightbox Component */}
-        <ProjectLightbox
-          images={project.images}
+        {/* Lightbox */}
+        <PortfolioLightbox
+          images={item.images}
           initialIndex={lightboxIndex}
           isOpen={lightboxOpen}
           onClose={() => setLightboxOpen(false)}
@@ -132,4 +132,3 @@ export default function ProjectPage({ params }: ProjectPageProps) {
     </div>
   );
 }
-// Compare this snippet from djangify_frontend/src/components/portfolio/ProjectLightbox.tsx:

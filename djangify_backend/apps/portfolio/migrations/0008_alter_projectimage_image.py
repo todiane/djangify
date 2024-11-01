@@ -17,12 +17,12 @@ class Migration(migrations.Migration):
             field=models.ImageField(
                 blank=True,
                 null=True,
-                upload_to=djangify_backend.apps.portfolio.models.project_gallery_image_path,
+                upload_to=djangify_backend.apps.portfolio.models.portfolio_gallery_image_path,
                 validators=[
                     django.core.validators.FileExtensionValidator(
                         allowed_extensions=["jpg", "jpeg", "png"]
                     ),
-                    djangify_backend.apps.portfolio.models.validate_project_image,
+                    djangify_backend.apps.portfolio.models.validate_portfolio_image,
                 ],
             ),
         ),

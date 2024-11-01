@@ -6,7 +6,7 @@ export interface Technology {
   icon: string;
 }
 
-export interface Project {
+export interface Portfolio {
   id: number;
   title: string;
   slug: string;

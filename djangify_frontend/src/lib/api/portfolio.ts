@@ -1,4 +1,3 @@
-// src/lib/api/portfolio.ts
 import api from '@/lib/api';
 
 export interface Technology {
@@ -8,7 +7,7 @@ export interface Technology {
   icon: string;
 }
 
-export interface Project {
+export interface Portfolio {
   id: number;
   title: string;
   slug: string;
@@ -37,7 +36,7 @@ export interface PaginatedResponse<T> {
   results: T[];
 }
 
-export interface ProjectFilters {
+export interface PortfolioFilters {
   technology?: string;
   search?: string;
   page?: number;
@@ -45,8 +44,8 @@ export interface ProjectFilters {
 }
 
 export const portfolioApi = {
-  // Get paginated list of projects
-  getProjects: async (filters?: ProjectFilters): Promise<PaginatedResponse<Project>> => {
+  // Get paginated list of portfolio items
+  getPortfolioItems: async (filters?: PortfolioFilters): Promise<PaginatedResponse<Portfolio>> => {
     const params = new URLSearchParams();
 
     if (filters) {
@@ -56,13 +55,13 @@ export const portfolioApi = {
       if (filters.is_featured !== undefined) params.append('is_featured', filters.is_featured.toString());
     }
 
-    const response = await api.get<PaginatedResponse<Project>>(`/portfolio/projects/?${params}`);
+    const response = await api.get<PaginatedResponse<Portfolio>>(`/portfolio/projects/?${params}`);
     return response.data;
   },
 
-  // Get a single project by slug
-  getProject: async (slug: string): Promise<Project> => {
-    const response = await api.get<Project>(`/portfolio/projects/${slug}/`);
+  // Get a single portfolio item by slug
+  getPortfolioItem: async (slug: string): Promise<Portfolio> => {
+    const response = await api.get<Portfolio>(`/portfolio/projects/${slug}/`);
     return response.data;
   },
 
@@ -72,9 +71,9 @@ export const portfolioApi = {
     return response.data.results;
   },
 
-  // Get featured projects
-  getFeaturedProjects: async (): Promise<Project[]> => {
-    const response = await api.get<PaginatedResponse<Project>>('/portfolio/projects/', {
+  // Get featured portfolio items
+  getFeaturedItems: async (): Promise<Portfolio[]> => {
+    const response = await api.get<PaginatedResponse<Portfolio>>('/portfolio/projects/', {
       params: {
         is_featured: true,
         ordering: 'order'

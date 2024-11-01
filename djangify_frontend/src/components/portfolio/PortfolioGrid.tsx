@@ -9,7 +9,7 @@ import { Github, ExternalLink } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Project, Technology, portfolioApi } from '@/lib/api/portfolio';
-import { LoadingProjects } from "@/components/ui/LoadingProjects";
+import { LoadingProjects } from "@/components/ui/LoadingPortfolio";
 import { ErrorMessage } from "@/components/ui/ErrorMessage";
 
 interface ProjectGridProps {

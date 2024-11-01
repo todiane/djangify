@@ -2,17 +2,17 @@ import Link from 'next/link';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
-import type { Project } from './types';
+import type { Portfolio } from './types';
 
-interface FeaturedProjectProps extends Project { }
+interface FeaturedPortfolioProps extends Portfolio { }
 
-export function FeaturedProject({
+export function FeaturedPortfolio({
   title,
   shortDescription,
   slug,
   featuredImage,
   technologies,
-}: FeaturedProjectProps) {
+}: FeaturedPortfolioProps) {
   return (
     <Card className="overflow-hidden h-full">
       <div className="relative aspect-video">
@@ -35,7 +35,7 @@ export function FeaturedProject({
         </div>
         <h3 className="text-2xl font-semibold mb-2">{title}</h3>
         <p className="text-muted-foreground line-clamp-2">{shortDescription}</p>
-        <Link href={`/projects/${slug}`} className="mt-4 block">
+        <Link href={`/portfolio/${slug}`} className="mt-4 block">
           <Button className="w-full">
             Read More <ArrowRight className="ml-2 h-4 w-4" />
           </Button>

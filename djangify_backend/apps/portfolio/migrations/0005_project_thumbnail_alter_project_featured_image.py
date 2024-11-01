@@ -32,7 +32,7 @@ class Migration(migrations.Migration):
                     django.core.validators.FileExtensionValidator(
                         allowed_extensions=["jpg", "jpeg", "png"]
                     ),
-                    djangify_backend.apps.portfolio.models.validate_project_image,
+                    djangify_backend.apps.portfolio.models.validate_portfolio_image,  # Changed from validate_project_image
                 ],
             ),
         ),

@@ -1,15 +1,18 @@
+# File: djangify_backend/apps/portfolio/urls.py
+
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .viewsets import ProjectViewSet, TechnologyViewSet, ProjectImageViewSet
-
+from djangify_backend.apps.portfolio.viewsets import (
+    ProjectViewSet,  # This still uses 'Project' in name for API consistency
+    TechnologyViewSet,
+    PortfolioImageViewSet,
+)
 
 router = DefaultRouter()
-# Full CRUD endpoints
+# Keep the same URL patterns for API consistency
 router.register(r"projects", ProjectViewSet, basename="project")
-# Read-only endpoint
 router.register(r"technologies", TechnologyViewSet, basename="technology")
-# Image handling endpoint
-router.register(r"project-images", ProjectImageViewSet, basename="project-image")
+router.register(r"project-images", PortfolioImageViewSet, basename="project-image")
 
 urlpatterns = [
     path("", include(router.urls)),

@@ -1,10 +1,10 @@
 from rest_framework import viewsets, filters
 from django_filters.rest_framework import DjangoFilterBackend
-from djangify_backend.apps.portfolio.models import Technology, Project, ProjectImage
+from djangify_backend.apps.portfolio.models import Technology, Portfolio, PortfolioImage
 from djangify_backend.apps.portfolio.serializers import (
     TechnologySerializer,
-    ProjectSerializer,
-    ProjectImageSerializer,
+    PortfolioSerializer,
+    PortfolioImageSerializer,
 )
 from djangify_backend.apps.portfolio.permissions import IsAdminOrReadOnly
 
@@ -15,12 +15,12 @@ class TechnologyViewSet(viewsets.ReadOnlyModelViewSet):
     lookup_field = "slug"
     filter_backends = [filters.SearchFilter]
     search_fields = ["name"]
-    ordering = ["name"]  # Add explicit ordering in viewset
+    ordering = ["name"]
 
 
-class ProjectViewSet(viewsets.ModelViewSet):
+class ProjectViewSet(viewsets.ModelViewSet):  # Keep ViewSet name for API consistency
     permission_classes = [IsAdminOrReadOnly]
-    serializer_class = ProjectSerializer
+    serializer_class = PortfolioSerializer
     lookup_field = "slug"
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     filterset_fields = ["technologies__slug", "is_featured"]
@@ -28,13 +28,13 @@ class ProjectViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return (
-            Project.objects.all()
-            .prefetch_related("technologies", "projectimage_set")
+            Portfolio.objects.all()
+            .prefetch_related("technologies", "images")
             .order_by("order")
         )
 
 
-class ProjectImageViewSet(viewsets.ModelViewSet):
+class PortfolioImageViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAdminOrReadOnly]
-    queryset = ProjectImage.objects.all()
-    serializer_class = ProjectImageSerializer
+    queryset = PortfolioImage.objects.all()
+    serializer_class = PortfolioImageSerializer

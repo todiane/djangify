@@ -12,7 +12,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def validate_project_image(image):
+def validate_portfolio_image(image):
     """
     Validate image file size, dimensions, and format
     """
@@ -36,37 +36,62 @@ def validate_project_image(image):
         )
 
 
-def project_image_path(instance, filename):
+def portfolio_image_path(instance, filename):
     """
-    Generate upload path for project images
+    Generate upload path for portfolio's featured image
     """
-    # Get the file extension
     ext = filename.split(".")[-1]
-    # Create a new filename using the project slug
     filename = f"{instance.slug}.{ext}"
-    return os.path.join("projects", filename)
+    return os.path.join("portfolio", filename)
+
+
+def portfolio_gallery_image_path(instance, filename):
+    """
+    Generate upload path for portfolio gallery images
+    """
+    ext = filename.split(".")[-1]
+    filename = f"{instance.portfolio.slug}-{instance.order}.{ext}"
+    return os.path.join("portfolio", "gallery", filename)
 
 
 def validate_github_url(value):
+    """
+    Validate that the URL is a valid GitHub repository URL
+    """
     github_url_pattern = re.compile(
-        r"^(https?://)?(www\.)?github\.com/[A-Za-z0-9_.-]+/?$"
+        r"^(https?://)?(www\.)?github\.com/[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+/?$"
     )
     if not github_url_pattern.match(value):
-        raise ValidationError(f"{value} is not a valid GitHub URL")
+        raise ValidationError("Please enter a valid GitHub repository URL")
 
 
 def validate_technology_icon(value):
-    icon_url_pattern = re.compile(
-        r"^(https?://)?(www\.)?example\.com/icons/[A-Za-z0-9_.-]+\.svg$"
-    )
-    if not icon_url_pattern.match(value):
-        raise ValidationError(f"{value} is not a valid technology icon URL")
+    """
+    Validate technology icon format and source
+    """
+    allowed_formats = ["svg", "png"]
+    if not any(value.lower().endswith(f".{fmt}") for fmt in allowed_formats):
+        raise ValidationError(
+            f"Icon must be one of these formats: {', '.join(allowed_formats)}"
+        )
 
 
 class Technology(TimeStampedModel):
-    name = models.CharField(max_length=100, null=True)
-    slug = models.SlugField(unique=True)
-    icon = models.CharField(max_length=50)
+    """
+    Model representing a technology/skill used in portfolio projects
+    """
+
+    name = models.CharField(
+        max_length=100,
+        null=True,
+        help_text="Name of the technology (e.g., Python, React, Django)",
+    )
+    slug = models.SlugField(unique=True, help_text="URL-friendly version of the name")
+    icon = models.CharField(
+        max_length=50,
+        help_text="Icon identifier or URL for the technology",
+        validators=[validate_technology_icon],
+    )
 
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -75,51 +100,54 @@ class Technology(TimeStampedModel):
 
     class Meta:
         verbose_name_plural = "Technologies"
-        ordering = ["name"]  # Add default ordering by name
+        ordering = ["name"]
 
     def __str__(self):
         return self.name
 
 
-def project_image_path(instance, filename):
+class Portfolio(TimeStampedModel, SEOModel):
     """
-    Generate upload path for project's featured image
+    Model representing a portfolio project with detailed information
     """
-    ext = filename.split(".")[-1]
-    filename = f"{instance.slug}.{ext}"
-    return os.path.join("projects", filename)
 
-
-def project_gallery_image_path(instance, filename):
-    """
-    Generate upload path for project gallery images
-    """
-    ext = filename.split(".")[-1]
-    # Use project slug and a unique identifier for gallery images
-    filename = f"{instance.project.slug}-{instance.order}.{ext}"
-    return os.path.join("projects", "gallery", filename)
-
-
-class Project(TimeStampedModel, SEOModel):
-    title = models.CharField(max_length=200, default="Default Title")
-    slug = models.SlugField(unique=True)
-    description = models.TextField()
-    short_description = models.CharField(max_length=200)
+    title = models.CharField(
+        max_length=200,
+        default="Default Title",
+        help_text="Title of the portfolio project",
+    )
+    slug = models.SlugField(unique=True, help_text="URL-friendly version of the title")
+    description = models.TextField(help_text="Detailed description of the project")
+    short_description = models.CharField(
+        max_length=200, help_text="Brief summary of the project"
+    )
     featured_image = models.ImageField(
-        upload_to=project_image_path,  # Use project_image_path for featured image
+        upload_to=portfolio_image_path,
         validators=[
             FileExtensionValidator(allowed_extensions=["jpg", "jpeg", "png"]),
-            validate_project_image,
+            validate_portfolio_image,
         ],
         help_text="Upload a JPG or PNG image (max 5MB)",
         null=True,
         blank=True,
     )
-    technologies = models.ManyToManyField(Technology, related_name="projects")
-    project_url = models.URLField(blank=True)
-    github_url = models.URLField(blank=True)
-    is_featured = models.BooleanField(default=False)
-    order = models.IntegerField(default=0)
+    technologies = models.ManyToManyField(
+        Technology,
+        related_name="portfolios",
+        help_text="Technologies used in this project",
+    )
+    project_url = models.URLField(
+        blank=True, help_text="Live project URL (if available)"
+    )
+    github_url = models.URLField(
+        blank=True, validators=[validate_github_url], help_text="GitHub repository URL"
+    )
+    is_featured = models.BooleanField(
+        default=False, help_text="Display this project in featured sections"
+    )
+    order = models.IntegerField(
+        default=0, help_text="Display order in the portfolio list"
+    )
 
     def clean(self):
         """
@@ -127,7 +155,7 @@ class Project(TimeStampedModel, SEOModel):
         """
         super().clean()
         if self.featured_image:
-            validate_project_image(self.featured_image)
+            validate_portfolio_image(self.featured_image)
 
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -156,36 +184,50 @@ class Project(TimeStampedModel, SEOModel):
                 )
             except Exception as e:
                 logger.error(
-                    f"Error processing image for project {self.title}: {str(e)}"
+                    f"Error processing image for portfolio {self.title}: {str(e)}"
                 )
 
     class Meta:
         ordering = ["order", "-created_at"]
+        verbose_name = "Portfolio"
+        verbose_name_plural = "Portfolios"
 
     def __str__(self):
         return self.title
 
 
-class ProjectImage(TimeStampedModel):
-    project = models.ForeignKey(
-        Project, on_delete=models.CASCADE, related_name="images"
+class PortfolioImage(TimeStampedModel):
+    """
+    Model representing additional images for a portfolio project
+    """
+
+    portfolio = models.ForeignKey(
+        Portfolio,
+        on_delete=models.CASCADE,
+        related_name="images",
+        help_text="Portfolio project this image belongs to",
+        null=True,
     )
     image = models.ImageField(
-        upload_to=project_gallery_image_path,  # Note the updated function name
+        upload_to=portfolio_gallery_image_path,
         validators=[
             FileExtensionValidator(allowed_extensions=["jpg", "jpeg", "png"]),
-            validate_project_image,
+            validate_portfolio_image,
         ],
+        help_text="Additional project image (JPG or PNG)",
         null=True,
         blank=True,
     )
-    caption = models.CharField(max_length=200)
-    order = models.IntegerField(default=0)
+    caption = models.CharField(max_length=200, help_text="Description of the image")
+    order = models.IntegerField(default=0, help_text="Display order in the gallery")
 
     def clean(self):
+        """
+        Custom validation for the model
+        """
         super().clean()
         if self.image:
-            validate_project_image(self.image)
+            validate_portfolio_image(self.image)
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
@@ -212,11 +254,13 @@ class ProjectImage(TimeStampedModel):
                 )
             except Exception as e:
                 logger.error(
-                    f"Error processing image for project image {self.id}: {str(e)}"
+                    f"Error processing image for portfolio image {self.id}: {str(e)}"
                 )
 
     class Meta:
         ordering = ["order"]
+        verbose_name = "Portfolio Image"
+        verbose_name_plural = "Portfolio Images"
 
     def __str__(self):
-        return f"Image for {self.project.title}"
+        return f"Image for {self.portfolio.title}"

@@ -8,62 +8,109 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('portfolio', '0002_alter_technology_options_project_meta_description_and_more'),
+        (
+            "portfolio",
+            "0002_alter_technology_options_project_meta_description_and_more",
+        ),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='technology',
-            options={'ordering': ['name'], 'verbose_name_plural': 'Technologies'},
+            name="technology",
+            options={"ordering": ["name"], "verbose_name_plural": "Technologies"},
         ),
         migrations.AlterField(
-            model_name='project',
-            name='featured_image',
-            field=models.ImageField(help_text='Main project image (min 800x600px, max 5MB)', upload_to='projects', validators=[django.core.validators.FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png']), djangify_backend.apps.portfolio.models.validate_project_image]),
+            model_name="project",
+            name="featured_image",
+            field=models.ImageField(
+                help_text="Main project image (min 800x600px, max 5MB)",
+                upload_to="projects",
+                validators=[
+                    django.core.validators.FileExtensionValidator(
+                        allowed_extensions=["jpg", "jpeg", "png"]
+                    ),
+                    djangify_backend.apps.portfolio.models.validate_portfolio_image,
+                ],
+            ),
         ),
         migrations.AlterField(
-            model_name='project',
-            name='github_url',
-            field=models.URLField(blank=True, help_text='GitHub repository URL', validators=[djangify_backend.apps.portfolio.models.validate_github_url]),
+            model_name="project",
+            name="github_url",
+            field=models.URLField(
+                blank=True,
+                help_text="GitHub repository URL",
+                validators=[djangify_backend.apps.portfolio.models.validate_github_url],
+            ),
         ),
         migrations.AlterField(
-            model_name='project',
-            name='order',
-            field=models.IntegerField(default=0, help_text='Order in which the project appears (lower numbers appear first)'),
+            model_name="project",
+            name="order",
+            field=models.IntegerField(
+                default=0,
+                help_text="Order in which the project appears (lower numbers appear first)",
+            ),
         ),
         migrations.AlterField(
-            model_name='project',
-            name='project_url',
-            field=models.URLField(blank=True, help_text='URL for the live project demo'),
+            model_name="project",
+            name="project_url",
+            field=models.URLField(
+                blank=True, help_text="URL for the live project demo"
+            ),
         ),
         migrations.AlterField(
-            model_name='project',
-            name='short_description',
-            field=models.CharField(help_text='A brief summary of the project', max_length=200),
+            model_name="project",
+            name="short_description",
+            field=models.CharField(
+                help_text="A brief summary of the project", max_length=200
+            ),
         ),
         migrations.AlterField(
-            model_name='project',
-            name='technologies',
-            field=models.ManyToManyField(related_name='projects', to='portfolio.technology'),
+            model_name="project",
+            name="technologies",
+            field=models.ManyToManyField(
+                related_name="projects", to="portfolio.technology"
+            ),
         ),
         migrations.AlterField(
-            model_name='projectimage',
-            name='caption',
-            field=models.CharField(help_text='Description of the image', max_length=200),
+            model_name="projectimage",
+            name="caption",
+            field=models.CharField(
+                help_text="Description of the image", max_length=200
+            ),
         ),
         migrations.AlterField(
-            model_name='projectimage',
-            name='image',
-            field=models.ImageField(blank=True, help_text='Additional project image (min 800x600px, max 5MB)', null=True, upload_to='projects', validators=[django.core.validators.FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png']), djangify_backend.apps.portfolio.models.validate_project_image]),
+            model_name="projectimage",
+            name="image",
+            field=models.ImageField(
+                blank=True,
+                help_text="Additional project image (min 800x600px, max 5MB)",
+                null=True,
+                upload_to="projects",
+                validators=[
+                    django.core.validators.FileExtensionValidator(
+                        allowed_extensions=["jpg", "jpeg", "png"]
+                    ),
+                    djangify_backend.apps.portfolio.models.validate_portfolio_image,
+                ],
+            ),
         ),
         migrations.AlterField(
-            model_name='projectimage',
-            name='order',
-            field=models.IntegerField(default=0, help_text='Order in which the image appears (lower numbers appear first)'),
+            model_name="projectimage",
+            name="order",
+            field=models.IntegerField(
+                default=0,
+                help_text="Order in which the image appears (lower numbers appear first)",
+            ),
         ),
         migrations.AlterField(
-            model_name='technology',
-            name='icon',
-            field=models.CharField(help_text="Icon name for the technology (e.g., 'python', 'react')", max_length=50, validators=[djangify_backend.apps.portfolio.models.validate_technology_icon]),
+            model_name="technology",
+            name="icon",
+            field=models.CharField(
+                help_text="Icon name for the technology (e.g., 'python', 'react')",
+                max_length=50,
+                validators=[
+                    djangify_backend.apps.portfolio.models.validate_technology_icon
+                ],
+            ),
         ),
     ]
