@@ -15,18 +15,12 @@ export interface Portfolio {
   short_description: string;
   featured_image: string;
   technologies: Technology[];
-  project_url: string;
-  github_url: string;
+  project_url?: string;
+  github_url?: string;
   is_featured: boolean;
   order: number;
   created_at: string;
   updated_at: string;
-  images: Array<{
-    id: number;
-    image: string;
-    caption: string;
-    order: number;
-  }>;
 }
 
 export interface PaginatedResponse<T> {
@@ -44,12 +38,11 @@ export interface PortfolioFilters {
 }
 
 export const portfolioApi = {
-  // Get paginated list of portfolio items
   getPortfolioItems: async (filters?: PortfolioFilters): Promise<PaginatedResponse<Portfolio>> => {
     const params = new URLSearchParams();
-
+    
     if (filters) {
-      if (filters.technology) params.append('technologies__slug', filters.technology);
+      if (filters.technology) params.append('technology__slug', filters.technology);
       if (filters.search) params.append('search', filters.search);
       if (filters.page) params.append('page', filters.page.toString());
       if (filters.is_featured !== undefined) params.append('is_featured', filters.is_featured.toString());
@@ -59,25 +52,19 @@ export const portfolioApi = {
     return response.data;
   },
 
-  // Get a single portfolio item by slug
   getPortfolioItem: async (slug: string): Promise<Portfolio> => {
     const response = await api.get<Portfolio>(`/portfolio/projects/${slug}/`);
     return response.data;
   },
 
-  // Get all technologies
   getTechnologies: async (): Promise<Technology[]> => {
     const response = await api.get<PaginatedResponse<Technology>>('/portfolio/technologies/');
     return response.data.results;
   },
 
-  // Get featured portfolio items
   getFeaturedItems: async (): Promise<Portfolio[]> => {
     const response = await api.get<PaginatedResponse<Portfolio>>('/portfolio/projects/', {
-      params: {
-        is_featured: true,
-        ordering: 'order'
-      }
+      params: { is_featured: true }
     });
     return response.data.results;
   }

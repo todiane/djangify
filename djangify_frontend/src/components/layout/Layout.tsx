@@ -47,9 +47,9 @@ const Layout = ({ children }: { children: ReactNode }) => {
                 <Home className="w-5 h-5 mr-3" />
                 <span>Home</span>
               </a>
-              <a href="/projects" className="flex items-center px-4 py-2 text-[#403f3f] hover:bg-gray-50 rounded-md transition-colors">
+              <a href="/portfolio" className="flex items-center px-4 py-2 text-[#403f3f] hover:bg-gray-50 rounded-md transition-colors">
                 <Briefcase className="w-5 h-5 mr-3" />
-                <span>Projects</span>
+                <span>Portfolio</span>
               </a>
               <a href="/blog" className="flex items-center px-4 py-2 text-[#403f3f] hover:bg-gray-50 rounded-md transition-colors">
                 <BookOpen className="w-5 h-5 mr-3" />
@@ -93,8 +93,8 @@ const Layout = ({ children }: { children: ReactNode }) => {
               <a href="/blog" className="text-sm text-[#737373] hover:text-[#403f3f] transition-colors">
                 Blog
               </a>
-              <a href="/projects" className="text-sm text-[#737373] hover:text-[#403f3f] transition-colors">
-                Projects
+              <a href="/portfolio" className="text-sm text-[#737373] hover:text-[#403f3f] transition-colors">
+                Portfolio
               </a>
               <a href="/about" className="text-sm text-[#737373] hover:text-[#403f3f] transition-colors">
                 About

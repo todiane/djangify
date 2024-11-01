@@ -11,7 +11,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
 
   const mainNavItems = [
     { label: "Home", icon: Home, href: "/" },
-    { label: "Projects", icon: Briefcase, href: "/projects" },
+    { label: "Portfolio", icon: Briefcase, href: "/portfolio" },
     { label: "Blog", icon: BookOpen, href: "/blog" },
     { label: "About", icon: User, href: "/about" },
     { label: "Contact", icon: Mail, href: "/contact" }

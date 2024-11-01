@@ -1,4 +1,3 @@
-// src/components/portfolio/ProjectLightbox.tsx
 'use client';
 
 import { useState } from 'react';
@@ -7,24 +6,24 @@ import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import Image from 'next/image';
 
-interface PortfolioImage {  
+interface ProjectImage {
   id: number;
   image: string;
   caption: string;
 }
 
 interface PortfolioLightboxProps {
-  images: PortfolioImage[];
+  images: ProjectImage[];
   initialIndex?: number;
   onClose: () => void;
   isOpen: boolean;
 }
 
-export function ProjectLightbox({
-  images,
-  initialIndex = 0,
-  onClose,
-  isOpen
+export function PortfolioLightbox({ 
+  images, 
+  initialIndex = 0, 
+  onClose, 
+  isOpen 
 }: PortfolioLightboxProps) {
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
 
@@ -36,7 +35,6 @@ export function ProjectLightbox({
     setCurrentIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
   };
 
-  // Handle keyboard navigation
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'ArrowLeft') handlePrevious();
     if (e.key === 'ArrowRight') handleNext();
@@ -47,12 +45,11 @@ export function ProjectLightbox({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent
+      <DialogContent 
         className="max-w-[90vw] h-[90vh] p-0"
         onKeyDown={handleKeyDown}
       >
         <div className="relative h-full flex items-center justify-center">
-          {/* Close button */}
           <Button
             variant="ghost"
             size="icon"
@@ -62,7 +59,6 @@ export function ProjectLightbox({
             <X className="h-4 w-4" />
           </Button>
 
-          {/* Navigation buttons */}
           {images.length > 1 && (
             <>
               <Button
@@ -84,17 +80,16 @@ export function ProjectLightbox({
             </>
           )}
 
-          {/* Image */}
           <div className="relative w-full h-full">
             <Image
               src={images[currentIndex].image}
               alt={images[currentIndex].caption}
               fill
               className="object-contain"
+              priority
             />
           </div>
 
-          {/* Caption */}
           {images[currentIndex].caption && (
             <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white p-4">
               <p className="text-center">{images[currentIndex].caption}</p>
