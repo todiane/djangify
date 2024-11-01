@@ -3,6 +3,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from django.utils.translation import gettext_lazy as _
+from django.shortcuts import get_object_or_404
 
 # Local imports
 from djangify_backend.apps.core.views import BaseViewSet
@@ -76,6 +77,19 @@ class PostViewSet(BaseViewSet):
     ordering = ["-published_date"]
     cache_key_prefix = "post"
 
+    def retrieve(self, request, *args, **kwargs):
+        print(f"Retrieving post with slug: {kwargs.get('slug')}")
+        instance = self.get_object()
+        print(f"Found post: {instance.title}")
+        serializer = self.get_serializer(instance)
+        return Response(
+            {
+                "status": "success",
+                "data": serializer.data,
+                "message": "Post retrieved successfully",
+            }
+        )
+
     def get_queryset(self):
         """
         Returns published posts for non-staff users,
@@ -89,21 +103,6 @@ class PostViewSet(BaseViewSet):
             queryset = queryset.filter(status="published")
 
         return queryset
-
-    @action(detail=True, methods=["post"])
-    def toggle_featured(self, request, slug=None):
-        """Toggle featured status of a post."""
-        try:
-            post = self.get_object()
-            post.is_featured = not post.is_featured
-            post.save()
-
-            return self.success_response(
-                data=PostSerializer(post).data,
-                message=f"Post {'featured' if post.is_featured else 'unfeatured'} successfully",
-            )
-        except Exception as e:
-            return self.error_response(message=str(e))
 
 
 class CommentViewSet(BaseViewSet):

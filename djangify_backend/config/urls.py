@@ -18,8 +18,15 @@ def api_root(request):
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("summernote/", include("django_summernote.urls")),
     path("api/v1", api_root, name="api-root"),
     path("api/v1/", api_root, name="api-root"),
     path("api/v1/blog/", include("djangify_backend.apps.blog.urls")),
     path("api/v1/portfolio/", include("djangify_backend.apps.portfolio.urls")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+
+# Add this at the end of the file if you haven't already
+if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -52,6 +52,9 @@ class PostSerializer(serializers.ModelSerializer):
     category = CategorySerializer(read_only=True)
     tags = TagSerializer(many=True, read_only=True)
     comments = serializers.SerializerMethodField()
+    published_date = serializers.DateTimeField(format="%Y-%m-%dT%H:%M:%SZ")
+    reading_time = serializers.SerializerMethodField()
+    word_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Post
@@ -73,13 +76,31 @@ class PostSerializer(serializers.ModelSerializer):
             "meta_description",
             "meta_keywords",
             "comments",
+            "reading_time",
+            "word_count",
         ]
         read_only_fields = ["created_at", "updated_at"]
 
     def get_comments(self, obj):
-        # Only return approved comments
         comments = obj.comments.filter(is_approved=True)
         return CommentSerializer(comments, many=True).data
+
+    def get_reading_time(self, obj):
+        word_count = len(obj.content.split())
+        minutes = word_count / 200
+        return round(minutes) if minutes >= 1 else 1
+
+    def get_word_count(self, obj):
+        return len(obj.content.split())
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+
+        # Add category name for convenience
+        if instance.category:
+            representation["category_name"] = instance.category.name
+
+        return representation
 
 
 def to_representation(self, instance):

@@ -249,6 +249,8 @@ SUMMERNOTE_CONFIG = {
     "attachment_allowed_types": ["image/jpeg", "image/svg", "image/png", "image/gif"],
 }
 
+X_FRAME_OPTIONS = "SAMEORIGIN"
+
 # Add SVG to Django's allowed upload formats
 FILE_UPLOAD_HANDLERS = [
     "django.core.files.uploadhandler.MemoryFileUploadHandler",
