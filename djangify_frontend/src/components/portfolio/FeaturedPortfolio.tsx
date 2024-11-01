@@ -4,7 +4,16 @@ import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
 import type { Portfolio } from './types';
 
-interface FeaturedPortfolioProps extends Portfolio { }
+interface FeaturedPortfolioProps {
+  title: string;
+  shortDescription: string;
+  slug: string;
+  featuredImage: string;
+  technologies: Array<{
+    id: number;
+    name: string;
+  }>;
+}
 
 export function FeaturedPortfolio({
   title,

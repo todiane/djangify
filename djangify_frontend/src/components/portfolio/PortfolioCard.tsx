@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
 import type { Portfolio } from './types';
 
-interface ProjectCardProps extends Portfolio { }
+interface PortfolioCardProps extends Portfolio { }
 
 export function PortfolioCard({
   title,

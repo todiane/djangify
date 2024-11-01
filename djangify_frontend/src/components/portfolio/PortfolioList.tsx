@@ -1,7 +1,8 @@
 // src/components/portfolio/ProjectList.tsx
 import { PortfolioCard } from './PortfolioCard';
+import type { Portfolio } from './types';
 
-interface Project {
+interface PortfolioListProps {
   id: number;
   title: string;
   shortDescription: string;
@@ -11,14 +12,15 @@ interface Project {
 }
 
 interface PortfolioListProps {
-  projects: Project[];
+  portfolios: Portfolio[];  // Changed from projects
 }
 
-export function PortfolioList({ portfolio }: PortfolioListProps) {
+
+export function PortfolioList({ portfolios }: PortfolioListProps) {
   return (
     <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-      {portfolio.map((portfolio) => (
-        <PortfolioCard key={portfolio.id} {...project} />
+      {portfolios.map((portfolio) => (
+        <PortfolioCard key={portfolio.id} {...portfolio} />
       ))}
     </div>
   );

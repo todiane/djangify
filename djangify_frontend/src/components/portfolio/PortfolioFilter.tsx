@@ -24,6 +24,7 @@ export function PortfolioFilter({
         variant={selectedTech === null ? "default" : "outline"}
         onClick={() => onSelectTech(null)}
         className="h-8"
+        aria-label="Show all portfolios"
       >
         All
         {selectedTech === null && <Check className="ml-2 h-4 w-4" />}

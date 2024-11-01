@@ -1,4 +1,4 @@
-// src/components/portfolio/ProjectGrid.tsx
+// src/components/portfolio/PortfolioGrid.tsx
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
@@ -8,38 +8,38 @@ import { Button } from "@/components/ui/button";
 import { Github, ExternalLink } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Project, Technology, portfolioApi } from '@/lib/api/portfolio';
-import { LoadingProjects } from "@/components/ui/LoadingPortfolio";
+import type { Portfolio, Technology } from './types';
+import { LoadingPortfolio } from "@/components/ui/LoadingPortfolio";
 import { ErrorMessage } from "@/components/ui/ErrorMessage";
 
-interface ProjectGridProps {
-  initialProjects: Project[];
+interface PortfolioGridProps {
+  initialPortfolios: Portfolio[];
   technologies: Technology[];
 }
 
-export function ProjectGrid({ initialProjects, technologies }: ProjectGridProps) {
+export function PortfolioGrid({ initialPortfolios, technologies }: PortfolioGridProps) {
   const [selectedTech, setSelectedTech] = useState<string | null>(null);
-  const [projects, setProjects] = useState(initialProjects);
+  const [portfolios, setPortfolios] = useState(initialPortfolios);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hasMore, setHasMore] = useState(true);
   const loaderRef = useRef<HTMLDivElement>(null);
 
-  // Filter projects based on selected technology
-  const filteredProjects = selectedTech
-    ? projects.filter(project =>
-      project.technologies.some(tech => tech.slug === selectedTech)
+  // Filter portfolios based on selected technology
+  const filteredPortfolios = selectedTech
+    ? portfolios.filter(portfolio =>
+      portfolio.technologies.some(tech => tech.slug === selectedTech)
     )
-    : projects;
+    : portfolios;
 
   // Reset state when technology filter changes
   useEffect(() => {
-    setProjects(initialProjects);
+    setPortfolios(initialPortfolios);
     setPage(1);
     setHasMore(true);
     setError(null);
-  }, [selectedTech, initialProjects]);
+  }, [selectedTech, initialPortfolios]);
 
   // Set up intersection observer for infinite scroll
   useEffect(() => {
@@ -47,7 +47,7 @@ export function ProjectGrid({ initialProjects, technologies }: ProjectGridProps)
       (entries) => {
         const first = entries[0];
         if (first.isIntersecting && hasMore && !loading) {
-          loadMoreProjects();
+          loadMorePortfolios();
         }
       },
       { threshold: 0.1 }
@@ -65,23 +65,23 @@ export function ProjectGrid({ initialProjects, technologies }: ProjectGridProps)
     };
   }, [hasMore, loading, selectedTech]);
 
-  // Load more projects
-  const loadMoreProjects = async () => {
+  // Load more portfolios
+  const loadMorePortfolios = async () => {
     try {
       setLoading(true);
       setError(null);
 
       const nextPage = page + 1;
-      const response = await portfolioApi.getProjects({
-        page: nextPage,
-        technology: selectedTech || undefined,
-      });
+      const response = await fetch(`/api/portfolio?page=${nextPage}${selectedTech ? `&technology=${selectedTech}` : ''}`);
+      const data = await response.json();
 
-      setProjects(prev => [...prev, ...response.results]);
+      if (!response.ok) throw new Error(data.message || 'Failed to load more items');
+
+      setPortfolios(prev => [...prev, ...data.results]);
       setPage(nextPage);
-      setHasMore(!!response.next);
+      setHasMore(!!data.next);
     } catch (err) {
-      setError('Failed to load more projects. Please try again.');
+      setError('Failed to load more items. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -90,7 +90,7 @@ export function ProjectGrid({ initialProjects, technologies }: ProjectGridProps)
   // Retry loading on error
   const handleRetry = () => {
     setError(null);
-    loadMoreProjects();
+    loadMorePortfolios();
   };
 
   return (
@@ -116,26 +116,26 @@ export function ProjectGrid({ initialProjects, technologies }: ProjectGridProps)
         ))}
       </div>
 
-      {/* Projects Grid */}
+      {/* Portfolio Grid */}
       <div className="space-y-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredProjects.map((project) => (
-            <Card key={project.id} className="flex flex-col">
+          {filteredPortfolios.map((portfolio) => (
+            <Card key={portfolio.id} className="flex flex-col">
               <div className="aspect-video relative">
                 <Image
-                  src={project.featured_image}
-                  alt={project.title}
+                  src={portfolio.featuredImage}
+                  alt={portfolio.title}
                   fill
                   className="object-cover rounded-t-lg"
                 />
               </div>
               <CardContent className="flex-1 p-6">
-                <h3 className="text-xl font-semibold mb-2">{project.title}</h3>
+                <h3 className="text-xl font-semibold mb-2">{portfolio.title}</h3>
                 <p className="text-muted-foreground mb-4 line-clamp-2">
-                  {project.short_description}
+                  {portfolio.shortDescription}
                 </p>
                 <div className="flex flex-wrap gap-2 mb-4">
-                  {project.technologies.map((tech) => (
+                  {portfolio.technologies.map((tech) => (
                     <Badge key={tech.slug} variant="secondary">
                       {tech.name}
                     </Badge>
@@ -144,21 +144,21 @@ export function ProjectGrid({ initialProjects, technologies }: ProjectGridProps)
               </CardContent>
               <CardFooter className="p-6 pt-0 gap-4">
                 <Button asChild variant="outline" size="sm">
-                  <Link href={`/projects/${project.slug}`}>
+                  <Link href={`/portfolio/${portfolio.slug}`}>
                     View Details
                   </Link>
                 </Button>
                 <div className="flex gap-2 ml-auto">
-                  {project.github_url && (
+                  {portfolio.githubUrl && (
                     <Button asChild size="icon" variant="ghost">
-                      <a href={project.github_url} target="_blank" rel="noopener noreferrer">
+                      <a href={portfolio.githubUrl} target="_blank" rel="noopener noreferrer">
                         <Github className="h-4 w-4" />
                       </a>
                     </Button>
                   )}
-                  {project.project_url && (
+                  {portfolio.projectUrl && (
                     <Button asChild size="icon" variant="ghost">
-                      <a href={project.project_url} target="_blank" rel="noopener noreferrer">
+                      <a href={portfolio.projectUrl} target="_blank" rel="noopener noreferrer">
                         <ExternalLink className="h-4 w-4" />
                       </a>
                     </Button>
@@ -171,21 +171,21 @@ export function ProjectGrid({ initialProjects, technologies }: ProjectGridProps)
 
         {/* Loading and Error States */}
         <div ref={loaderRef} className="mt-8">
-          {loading && <LoadingProjects />}
+          {loading && <LoadingPortfolio />}
           {error && (
             <ErrorMessage
               message={error}
               retry={handleRetry}
             />
           )}
-          {!hasMore && !loading && !error && filteredProjects.length > 0 && (
+          {!hasMore && !loading && !error && filteredPortfolios.length > 0 && (
             <p className="text-center text-muted-foreground">
-              No more projects to load
+              No more items to load
             </p>
           )}
-          {!loading && !error && filteredProjects.length === 0 && (
+          {!loading && !error && filteredPortfolios.length === 0 && (
             <p className="text-center text-muted-foreground">
-              No projects found for the selected technology
+              No items found for the selected technology
             </p>
           )}
         </div>

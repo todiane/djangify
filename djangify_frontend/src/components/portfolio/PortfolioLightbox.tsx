@@ -7,14 +7,14 @@ import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import Image from 'next/image';
 
-interface ProjectImage {
+interface PortfolioImage {  
   id: number;
   image: string;
   caption: string;
 }
 
-interface ProjectLightboxProps {
-  images: ProjectImage[];
+interface PortfolioLightboxProps {
+  images: PortfolioImage[];
   initialIndex?: number;
   onClose: () => void;
   isOpen: boolean;
@@ -25,7 +25,7 @@ export function ProjectLightbox({
   initialIndex = 0,
   onClose,
   isOpen
-}: ProjectLightboxProps) {
+}: PortfolioLightboxProps) {
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
 
   const handlePrevious = () => {

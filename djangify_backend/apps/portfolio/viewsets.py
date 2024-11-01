@@ -7,7 +7,7 @@ from djangify_backend.apps.core.utils import FileHandler
 from djangify_backend.apps.core.mixins import FileHandlingMixin
 from djangify_backend.apps.portfolio.models import Portfolio, Technology, PortfolioImage
 from djangify_backend.apps.portfolio.serializers import (
-    ProjectSerializer,
+    PortfolioSerializer,
     TechnologySerializer,
     PortfolioImageSerializer,
 )
@@ -29,7 +29,7 @@ class ProjectViewSet(FileHandlingMixin, BaseViewSet):
     """
 
     queryset = Portfolio.objects.all()
-    serializer_class = ProjectSerializer
+    serializer_class = PortfolioSerializer
     permission_classes = [IsAdminOrReadOnly]
     throttle_classes = [
         WriteOperationThrottle,
