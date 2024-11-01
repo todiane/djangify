@@ -117,5 +117,5 @@ export const blogApi = {
   }): Promise<Comment> => {
     const response = await api.post<Comment>(`/blog/posts/${postSlug}/comments/`, comment);
     return response.data;
-  },
+  }
 };
