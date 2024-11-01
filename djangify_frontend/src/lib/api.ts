@@ -8,4 +8,16 @@ const api = axios.create({
   },
 });
 
+export async function getPostBySlug(slug: string) {
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/blog/posts/${slug}/`)
+    if (!response.ok) throw new Error('Post not found')
+    return response.json()
+  } catch (error) {
+    console.error('Error fetching post:', error)
+    return null
+  }
+}
+
+
 export default api;

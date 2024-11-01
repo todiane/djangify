@@ -11,3 +11,11 @@ export function formatDate(date: string | Date) {
   const parsedDate = typeof date === 'string' ? parseISO(date) : date;
   return format(parsedDate, 'MMMM d, yyyy');
 }
+
+export function formatReadingTime(minutes: number): string {
+  return `Read time: ${minutes} min`
+}
+
+export function formatWordCount(count: number): string {
+  return `Word Count: ${count}`
+}

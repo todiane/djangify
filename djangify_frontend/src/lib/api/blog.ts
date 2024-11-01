@@ -33,7 +33,10 @@ export interface Post {
   meta_description: string;
   is_featured: boolean;
   comments: Comment[];
+  reading_time?: number; // Added
+  word_count?: number;   // Added
 }
+
 
 export interface PaginatedResponse<T> {
   count: number;

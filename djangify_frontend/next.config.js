@@ -2,6 +2,9 @@
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
+  serverRuntimeConfig: {
+    timeZone: 'Europe/London',
+  },
   images: {
     remotePatterns: [
       {
@@ -13,5 +16,6 @@ const nextConfig = {
     ],
   },
 }
+
 
 module.exports = nextConfig
